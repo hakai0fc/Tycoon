@@ -152,7 +152,7 @@ InfiniteYieldTab:AddSection({ Name = "FUNÇÕES ADICIONAIS" })
 InfiniteYieldTab:AddButton({
     Name = "AimBot",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakaiofc/Aimbot/refs/heads/main/HAKAI_OFC"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/Aim/refs/heads/main/Bot"))()
     end
 })
 InfiniteYieldTab:AddButton({
