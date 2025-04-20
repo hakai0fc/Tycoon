@@ -1,0 +1,170 @@
+-- Load Orion Library
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/hakaiofc/Base/main/HUBORION'))()
+
+-- ANTI AFK
+pcall(function()
+    local VirtualUser = game:service'VirtualUser'
+    game:service'Players'.LocalPlayer.Idled:connect(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end)
+end)
+
+-- GLOBALS
+local LP = game.Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Criando Interface
+local Window = OrionLib:MakeWindow({
+    Name = "War HUB",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "OrionTest",
+    IntroEnabled = false
+})
+
+local HubExclusivoTab = Window:MakeTab({
+    Name = "Menu Exclusivo",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+HubExclusivoTab:AddSection({ Name = "Auto-TP" })
+
+HubExclusivoTab:AddButton({
+    Name = "TP ARVORE KOTH",
+    Callback = function()
+        local destino = Vector3.new(-274, 558, -366) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+HubExclusivoTab:AddButton({
+    Name = "TP ARVORE KOTH2",
+    Callback = function()
+        local destino = Vector3.new(-272, 561, -246) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+HubExclusivoTab:AddButton({
+    Name = "TP ALPHA",
+    Callback = function()
+        local destino = Vector3.new(-278, 435, 173) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+HubExclusivoTab:AddButton({
+    Name = "TP BRAVO",
+    Callback = function()
+        local destino = Vector3.new(-620, 435, 38) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+HubExclusivoTab:AddButton({
+    Name = "TP CHARLIE",
+    Callback = function()
+        local destino = Vector3.new(-773, 435, -319) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+HubExclusivoTab:AddButton({
+    Name = "TP DELTA",
+    Callback = function()
+        local destino = Vector3.new(-623, 435, -680) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+HubExclusivoTab:AddButton({
+    Name = "TP ECHO",
+    Callback = function()
+        local destino = Vector3.new(-276, 435, -821) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+HubExclusivoTab:AddButton({
+    Name = "TP FOXTROT",
+    Callback = function()
+        local destino = Vector3.new(83, 435, -700) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+HubExclusivoTab:AddButton({
+    Name = "TP HOTEL",
+    Callback = function()
+        local destino = Vector3.new(233, 435, -338) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+HubExclusivoTab:AddButton({
+    Name = "TP OMEGA",
+    Callback = function()
+        local destino = Vector3.new(76, 435, 43) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+local InfiniteYieldTab = Window:MakeTab({
+    Name = "FUNÇÕES A+",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+InfiniteYieldTab:AddSection({ Name = "FUNÇÕES ADICIONAIS" })
+
+InfiniteYieldTab:AddButton({
+    Name = "AimBot",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakaiofc/Aimbot/refs/heads/main/HAKAI_OFC"))()
+    end
+})
+InfiniteYieldTab:AddButton({
+    Name = "ESP WALL",
+    Callback = function()
+       loadstring(game:HttpGet("https://raw.githubusercontent.com/hakaiofc/Fates/refs/heads/main/ESP"))()
+    end
+})
+
+InfiniteYieldTab:AddButton({
+    Name = "InfiniteYield",
+    Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/hakai0fc/EdgeIY/refs/heads/main/infiniteyield'))()
+    end
+})
