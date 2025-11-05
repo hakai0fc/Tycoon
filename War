@@ -174,18 +174,7 @@ TeleportTab:AddButton({
 TeleportTab:AddButton({
     Name = "CHARLIE TORRE",
     Callback = function()
-        local destino = Vector3.new(-725, 435, -401) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-TeleportTab:AddButton({
-    Name = "CHARLIE TORRE",
-    Callback = function(-728, 435, -402)
-        local destino = Vector3.new(-532, 435, -706) 
+        local destino = Vector3.new(-532, 435, -706)
         if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
             LP.Character:MoveTo(destino)
         else
