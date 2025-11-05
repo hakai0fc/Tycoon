@@ -156,12 +156,38 @@ InfiniteYieldTab:AddButton({
     end
 })
 InfiniteYieldTab:AddButton({
+    Name = "AMMO HACK",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+if not player then return end
+
+local backpack = player:FindFirstChild("Backpack")
+if not backpack then return end
+
+for _, tool in ipairs(backpack:GetChildren()) do
+    if tool:IsA("Tool") then
+        local repValues = tool:FindFirstChild("RepValues")
+        if repValues then
+            local mag = repValues:FindFirstChild("Mag")
+            if mag and mag:IsA("IntValue") then
+                mag.Value = 9999999999
+            end
+
+            local storedAmmo = repValues:FindFirstChild("StoredAmmo")
+            if storedAmmo and storedAmmo:IsA("IntValue") then
+                storedAmmo.Value = 9999999999
+            end
+        end
+    end
+end
+    end
+})
+InfiniteYieldTab:AddButton({
     Name = "ANTI LAG",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/ANTILAG/refs/heads/main/HAKAI"))()
     end
 })
-
 InfiniteYieldTab:AddButton({
     Name = "HAKAI ESP",
     Callback = function()
