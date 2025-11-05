@@ -363,89 +363,73 @@ FuncoesEspeciaisTab:AddToggle({
     end
 })
 
-local FLYING = false
-local FLY_SPEED = 10
-local flyConnection
+local function setupFly(char)
+    local root = char:WaitForChild("HumanoidRootPart")
+    local humanoid = char:WaitForChild("Humanoid")
+    
+    FuncoesEspeciaisTab:AddToggle({
+        Name = "Fly",
+        Default = false,
+        Save = false,
+        Callback = function(state)
+            FLYING = state
+            if FLYING then
+                local BG = Instance.new("BodyGyro")
+                BG.P = 9e4
+                BG.MaxTorque = Vector3.new(9e9,9e9,9e9)
+                BG.CFrame = root.CFrame
+                BG.Parent = root
 
-FuncoesEspeciaisTab:AddSlider({
-    Name = "Fly Speed",
-    Min = 10,
-    Max = 200,
-    Default = 10,
-    Color = Color3.fromRGB(255, 255, 255),
-    Increment = 5,
-    ValueName = "Speed",
-    Callback = function(value)
-        FLY_SPEED = value
-    end
-})
+                local BV = Instance.new("BodyVelocity")
+                BV.MaxForce = Vector3.new(9e9,9e9,9e9)
+                BV.Velocity = Vector3.new(0,0,0)
+                BV.Parent = root
 
-FuncoesEspeciaisTab:AddToggle({
-    Name = "Fly",
-    Default = false,
-    Save = false,
-    Callback = function(state)
-        local char = player.Character
-        if not char then return end
-        local root = char:FindFirstChild("HumanoidRootPart")
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        if not root or not humanoid then return end
+                humanoid.PlatformStand = true
 
-        FLYING = state
+                flyConnection = RunService.RenderStepped:Connect(function()
+                    if not FLYING then 
+                        flyConnection:Disconnect()
+                        BG:Destroy()
+                        BV:Destroy()
+                        humanoid.PlatformStand = false
+                        return
+                    end
 
-        if FLYING then
-            local BG = Instance.new("BodyGyro")
-            BG.P = 9e4
-            BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
-            BG.CFrame = root.CFrame
-            BG.Parent = root
+                    local moveVector = Vector3.new()
+                    local UIS = game:GetService("UserInputService")
+                    local camera = workspace.CurrentCamera
 
-            local BV = Instance.new("BodyVelocity")
-            BV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-            BV.Velocity = Vector3.new(0,0,0)
-            BV.Parent = root
+                    if UIS:IsKeyDown(Enum.KeyCode.W) then moveVector += camera.CFrame.LookVector end
+                    if UIS:IsKeyDown(Enum.KeyCode.S) then moveVector -= camera.CFrame.LookVector end
+                    if UIS:IsKeyDown(Enum.KeyCode.A) then moveVector -= camera.CFrame.RightVector end
+                    if UIS:IsKeyDown(Enum.KeyCode.D) then moveVector += camera.CFrame.RightVector end
+                    if UIS:IsKeyDown(Enum.KeyCode.Space) then moveVector += Vector3.new(0,1,0) end
+                    if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then moveVector -= Vector3.new(0,1,0) end
 
-            humanoid.PlatformStand = true
+                    if moveVector.Magnitude > 0 then
+                        BV.Velocity = moveVector.Unit * FLY_SPEED
+                    else
+                        BV.Velocity = Vector3.new(0,0,0)
+                    end
 
-            flyConnection = RunService.RenderStepped:Connect(function()
-                if not FLYING or not root or not humanoid then
-                    flyConnection:Disconnect()
-                    BG:Destroy()
-                    BV:Destroy()
-                    humanoid.PlatformStand = false
-                    return
+                    BG.CFrame = camera.CFrame
+                end)
+            else
+                FLYING = false
+                if flyConnection then flyConnection:Disconnect() end
+                for _, part in pairs(char:GetDescendants()) do
+                    if part:IsA("BodyGyro") or part:IsA("BodyVelocity") then
+                        part:Destroy()
+                    end
                 end
-
-                local camera = workspace.CurrentCamera
-                local moveVector = Vector3.new()
-                local UIS = game:GetService("UserInputService")
-
-                if UIS:IsKeyDown(Enum.KeyCode.W) then moveVector += camera.CFrame.LookVector end
-                if UIS:IsKeyDown(Enum.KeyCode.S) then moveVector -= camera.CFrame.LookVector end
-                if UIS:IsKeyDown(Enum.KeyCode.A) then moveVector -= camera.CFrame.RightVector end
-                if UIS:IsKeyDown(Enum.KeyCode.D) then moveVector += camera.CFrame.RightVector end
-                if UIS:IsKeyDown(Enum.KeyCode.Space) then moveVector += Vector3.new(0,1,0) end
-                if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then moveVector -= Vector3.new(0,1,0) end
-
-                if moveVector.Magnitude > 0 then
-                    BV.Velocity = moveVector.Unit * FLY_SPEED
-                else
-                    BV.Velocity = Vector3.new(0,0,0)
-                end
-
-                BG.CFrame = camera.CFrame
-            end)
-        else
-            FLYING = false
-            if flyConnection then flyConnection:Disconnect() end
-            for _, part in pairs(char:GetDescendants()) do
-                if part:IsA("BodyGyro") or part:IsA("BodyVelocity") then
-                    part:Destroy()
-                end
+                humanoid.PlatformStand = false
             end
-            humanoid.PlatformStand = false
         end
-    end
-})
+    })
+end
 
-OrionLib:Init()
+if player.Character then
+    setupFly(player.Character)
+end
+player.CharacterAdded:Connect(setupFly)
