@@ -156,18 +156,387 @@ InfiniteYieldTab:AddButton({
     end
 })
 InfiniteYieldTab:AddButton({
-    Name = "TYCOON HUB",
+    Name = "ANTI LAG",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/Aim/refs/heads/main/Bot"))()
-    end
-})
-InfiniteYieldTab:AddButton({
-    Name = "ESP WALL",
-    Callback = function()
-       loadstring(game:HttpGet("https://raw.githubusercontent.com/hakaiofc/Fates/refs/heads/main/ESP"))()
+        -- ANTI LAG HAKAI
+        local Lighting = game:GetService("Lighting")
+        local Workspace = game:GetService("Workspace")
+        local Players = game:GetService("Players")
+        local Terrain = Workspace:FindFirstChildOfClass("Terrain")
+        local Player = Players.LocalPlayer
+
+        local ScreenGui = Instance.new("ScreenGui")
+        ScreenGui.Name = "FPSGui"
+        ScreenGui.ResetOnSpawn = false
+        ScreenGui.IgnoreGuiInset = true
+        ScreenGui.Parent = Player:WaitForChild("PlayerGui")
+
+        local FPSLabel = Instance.new("TextLabel")
+        FPSLabel.Size = UDim2.new(0, 100, 0, 25)
+        FPSLabel.Position = UDim2.new(1, -110, 0, 10)
+        FPSLabel.BackgroundTransparency = 0.4
+        FPSLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        FPSLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+        FPSLabel.Font = Enum.Font.Code
+        FPSLabel.TextScaled = true
+        FPSLabel.Text = "FPS: --"
+        FPSLabel.Parent = ScreenGui
+
+        pcall(function()
+            settings().Rendering.QualityLevel = Enum.QualityLevel.Level21
+            settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level01
+
+            Lighting.GlobalShadows = false
+            Lighting.EnvironmentSpecularScale = 0
+            Lighting.EnvironmentDiffuseScale = 0.1
+            Lighting.Brightness = 1.5
+            Lighting.ClockTime = 13.8
+            Lighting.FogStart = 0
+            Lighting.FogEnd = 1000000
+            Lighting.OutdoorAmbient = Color3.fromRGB(130, 130, 130)
+            Lighting.ExposureCompensation = 0
+
+            for _, eff in ipairs(Lighting:GetChildren()) do
+                if eff:IsA("BloomEffect") or eff:IsA("BlurEffect") or eff:IsA("DepthOfFieldEffect") 
+                or eff:IsA("SunRaysEffect") or eff:IsA("ColorCorrectionEffect") then
+                    eff.Enabled = false
+                end
+            end
+
+            if Terrain then
+                Terrain.Decoration = false
+                Terrain.WaterWaveSize = 0
+                Terrain.WaterWaveSpeed = 0
+                Terrain.WaterReflectance = 0
+                Terrain.WaterTransparency = 0.8
+            end
+
+            for _, obj in ipairs(Workspace:GetDescendants()) do
+                if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Fire") 
+                or obj:IsA("Smoke") or obj:IsA("Explosion") then
+                    obj.Enabled = false
+                elseif obj:IsA("MeshPart") or obj:IsA("UnionOperation") or obj:IsA("Part") then
+                    obj.CastShadow = false
+                    if obj.Material == Enum.Material.Grass then
+                        obj.Material = Enum.Material.SmoothPlastic
+                    end
+                elseif obj:IsA("PointLight") or obj:IsA("SpotLight") or obj:IsA("SurfaceLight") then
+                    obj.Enabled = false
+                end
+            end
+        end)
+
+        local RunService = game:GetService("RunService")
+        local frames, lastTime = 0, tick()
+
+        RunService.RenderStepped:Connect(function()
+            frames += 1
+            local now = tick()
+            if now - lastTime >= 1 then
+                local fps = math.floor(frames / (now - lastTime))
+                frames = 0
+                lastTime = now
+                FPSLabel.Text = "FPS: " .. fps
+
+                if fps < 50 then
+                    FPSLabel.TextColor3 = Color3.fromRGB(255, 80, 0)
+                    FPSLabel.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+                elseif fps > 90 then
+                    FPSLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+                    FPSLabel.BackgroundColor3 = Color3.fromRGB(0, 30, 0)
+                else
+                    FPSLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+                    FPSLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 0)
+                end
+            end
+        end)
     end
 })
 
+InfiniteYieldTab:AddButton({
+    Name = "HAKAI ESP",
+    Callback = function()
+        loadstring([[
+            --HAKAI ESP
+            if (not game:IsLoaded()) then game.Loaded:Wait(); end
+            local UILibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/fatesc/fates-esp/main/ui.lua"))();
+            local PlaceId = game.PlaceId
+            local Players = game:GetService("Players");
+            local HttpService = game:GetService("HttpService");
+            local Workspace = game:GetService("Workspace");
+            local Teams = game:GetService("Teams")
+            local UserInputService = game:GetService("UserInputService")
+            local RunService = game:GetService("RunService");
+            local CurrentCamera = Workspace.CurrentCamera
+            local WorldToViewportPoint = CurrentCamera.WorldToViewportPoint
+            local GetPartsObscuringTarget = CurrentCamera.GetPartsObscuringTarget
+            local Inset = game:GetService("GuiService"):GetGuiInset().Y
+            local FindFirstChild = game.FindFirstChild
+            local FindFirstChildWhichIsA = game.FindFirstChildWhichIsA
+            local IsA = game.IsA
+            local Vector2new = Vector2.new
+            local Vector3new = Vector3.new
+            local CFramenew = CFrame.new
+            local Color3new = Color3.new
+            local Tfind = table.find
+            local create = table.create
+            local format = string.format
+            local floor = math.floor
+            local gsub = string.gsub
+            local sub = string.sub
+            local lower = string.lower
+            local upper = string.upper
+            local random = math.random
+            local DefaultSettings = {
+                Esp = {
+                    NamesEnabled = true,
+                    HealthEnabled = true,
+                    TracersEnabled = false,
+                    TeamColors = true,
+                    Thickness = 1.5,
+                    TracerThickness = 1.6,
+                    Transparency = 0.9,
+                    TracerTrancparency = 0.7,
+                    Size = 12,
+                    RenderDistance = 21,
+                    Color = Color3.fromRGB(19, 130, 226),
+                    OutlineColor = Color3new(),
+                    TracerTo = "Head",
+                    BlacklistedTeams = {}
+                },
+                WindowPosition = UDim2.new(0.5, -200, 0.5, -139);
+                Version = 1.2
+            }
+            local EncodeConfig, DecodeConfig;
+            do
+                local deepsearchset
+                deepsearchset = function(tbl, ret, value)
+                    if (type(tbl) == 'table') then
+                        local new = {}
+                        for i, v in next, tbl do
+                            new[i] = v
+                            if (type(v) == 'table') then new[i] = deepsearchset(v, ret, value); end
+                            if (ret(i, v)) then new[i] = value(i, v); end
+                        end
+                        return new
+                    end
+                end
+                DecodeConfig = function(Config)
+                    local DecodedConfig = deepsearchset(Config, function(Index, Value)
+                        return type(Value) == "table" and (Value.HSVColor or Value.Position);
+                    end, function(Index, Value)
+                        local Color = Value.HSVColor
+                        local Position = Value.Position
+                        if (Color) then return Color3.fromHSV(Color.H, Color.S, Color.V); end
+                        if (Position and Position.Y and Position.X) then
+                            return UDim2.new(UDim.new(Position.X.Scale, Position.X.Offset), UDim.new(Position.Y.Scale, Position.Y.Offset));
+                        else
+                            return DefaultSettings.WindowPosition;
+                        end
+                    end)
+                    return DecodedConfig
+                end
+                EncodeConfig = function(Config)
+                    local ToHSV = Color3new().ToHSV
+                    local EncodedConfig = deepsearchset(Config, function(Index, Value)
+                        return typeof(Value) == "Color3" or typeof(Value) == "UDim2"
+                    end, function(Index, Value)
+                        local Color = typeof(Value) == "Color3"
+                        local Position = typeof(Value) == "UDim2"
+                        if (Color) then
+                            local H, S, V = ToHSV(Value);
+                            return { HSVColor = { H = H, S = S, V = V } };
+                        end
+                        if (Position) then
+                            return { Position = { X = { Scale = Value.X.Scale, Offset = Value.X.Offset }; Y = { Scale = Value.Y.Scale, Offset = Value.Y.Offset } } };
+                        end
+                    end)
+                    return EncodedConfig
+                end
+            end
+            local GetConfig = function()
+                local read, data = pcall(readfile, "fates-esp.json");
+                local canDecode, config = pcall(HttpService.JSONDecode, HttpService, data);
+                if (read and canDecode) then
+                    local Decoded = DecodeConfig(config);
+                    if (Decoded.Version ~= DefaultSettings.Version) then
+                        local Encoded = HttpService:JSONEncode(EncodeConfig(DefaultSettings));
+                        writefile("fates-esp.json", Encoded);
+                        return DefaultSettings;
+                    end
+                    return Decoded;
+                else
+                    local Encoded = HttpService:JSONEncode(EncodeConfig(DefaultSettings));
+                    writefile("fates-esp.json", Encoded);
+                    return DefaultSettings
+                end
+            end
+            local Settings = GetConfig();
+            local LocalPlayer = Players.LocalPlayer
+            local Mouse = LocalPlayer:GetMouse();
+            local MouseVector = Vector2new(Mouse.X, Mouse.Y);
+            local Characters = {}
+            local CustomGet = { [0] = function() return {} end }
+            local Get;
+            if (CustomGet[PlaceId]) then Get = CustomGet[PlaceId](); end
+            local GetCharacter = function(Player)
+                if (Get) then return Get.GetCharacter(Player); end
+                return Player.Character
+            end
+            local CharacterAdded = function(Player, Callback)
+                if (Get) then return end
+                Player.CharacterAdded:Connect(Callback);
+            end
+            local CharacterRemoving = function(Player, Callback)
+                if (Get) then return end
+                Player.CharacterRemoving:Connect(Callback);
+            end
+            local GetTeam = function(Player)
+                if (Get) then return Get.GetTeam(Player); end
+                return Player.Team
+            end
+
+            local Drawings = {}
+            local EspSettings = Settings.Esp
+            local HandlePlayer = function(Player)
+                local Character = GetCharacter(Player);
+                if (Character) then Characters[Player] = Character end
+                CharacterAdded(Player, function(Char) Characters[Player] = Char end);
+                CharacterRemoving(Player, function(Char) Characters[Player] = nil
+                    local PlayerDrawings = Drawings[Player]
+                    if (PlayerDrawings) then
+                        if PlayerDrawings.Text then PlayerDrawings.Text.Visible = false end
+                        if PlayerDrawings.Tracer then PlayerDrawings.Tracer.Visible = false end
+                    end
+                end);
+                if (Player == LocalPlayer) then return; end
+                local Text = Drawing.new("Text");
+                Text.Color = EspSettings.Color
+                Text.OutlineColor = EspSettings.OutlineColor
+                Text.Size = EspSettings.Size
+                Text.Transparency = EspSettings.Transparency
+                Text.Center = true
+                Text.Outline = true
+                Text.Visible = false
+                local Tracer = Drawing.new("Line");
+                Tracer.Color = EspSettings.Color
+                Tracer.From = Vector2new(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y)
+                Tracer.Thickness = EspSettings.TracerThickness
+                Tracer.Transparency = EspSettings.TracerTrancparency
+                Tracer.Visible = false
+                Drawings[Player] = { Text = Text, Tracer = Tracer }
+            end
+            for Index, Player in pairs(Players:GetPlayers()) do HandlePlayer(Player); end
+            Players.PlayerAdded:Connect(function(Player) HandlePlayer(Player); end);
+            Players.PlayerRemoving:Connect(function(Player)
+                Characters[Player] = nil
+                local PlayerDrawings = Drawings[Player]
+                for Index, DrawingObj in pairs(PlayerDrawings or {}) do DrawingObj.Visible = false end
+                Drawings[Player] = nil
+            end)
+
+            local SetProperties = function(Properties)
+                for Player, PlayerDrawings in pairs(Drawings) do
+                    if (type(Player) ~= "number") then
+                        for Property, Value in pairs(Properties.Tracer or {}) do if PlayerDrawings.Tracer then PlayerDrawings.Tracer[Property] = Value end end
+                        for Property, Value in pairs(Properties.Text or {}) do if PlayerDrawings.Text then PlayerDrawings.Text[Property] = Value end end
+                    end
+                end
+            end
+
+            local GetClosestPlayerAndRender = function()
+                MouseVector = Vector2new(Mouse.X, Mouse.Y + Inset);
+                local LocalRoot = Characters[LocalPlayer] and FindFirstChild(Characters[LocalPlayer], "HumanoidRootPart");
+                for Player, Character in pairs(Characters) do
+                    if (Player == LocalPlayer) then continue; end
+                    local PlayerDrawings = Drawings[Player]
+                    local PlayerRoot = FindFirstChild(Character, "HumanoidRootPart")
+                    local PlayerTeam = GetTeam(Player)
+                    if (PlayerRoot) then
+                        local Redirect = FindFirstChild(Character, "Head");
+                        if (not Redirect) then
+                            if PlayerDrawings then
+                                PlayerDrawings.Text.Visible = false
+                                PlayerDrawings.Tracer.Visible = false
+                            end
+                            continue;
+                        end
+                        local RedirectPos = Redirect.Position
+                        local Tuple, Visible = WorldToViewportPoint(CurrentCamera, RedirectPos)
+                        local CharacterVec2 = Vector2new(Tuple.X, Tuple.Y)
+                        local Vector3Magnitude = LocalRoot and (RedirectPos - LocalRoot.Position).Magnitude or math.huge
+                        local InRenderDistance = Vector3Magnitude <= EspSettings.RenderDistance
+                        if (InRenderDistance and Visible and not Tfind(EspSettings.BlacklistedTeams, PlayerTeam)) then
+                            local CharacterHumanoid = FindFirstChildWhichIsA(Character, "Humanoid") or { Health = 0, MaxHealth = 0 };
+                            PlayerDrawings.Text.Text = format("%s%s", EspSettings.NamesEnabled and Player.Name or "", EspSettings.HealthEnabled and format(" [%s/%s]", floor(CharacterHumanoid.Health), floor(CharacterHumanoid.MaxHealth) ) or "" );
+                            PlayerDrawings.Text.Position = Vector2new(Tuple.X, Tuple.Y - 40)
+                            PlayerDrawings.Text.Size = EspSettings.Size
+                            if (EspSettings.TracersEnabled) then PlayerDrawings.Tracer.To = CharacterVec2 end
+                            if (EspSettings.TeamColors) then
+                                local TeamColor
+                                if (PlayerTeam) then
+                                    local BrickTeamColor = PlayerTeam.TeamColor
+                                    TeamColor = BrickTeamColor.Color
+                                else
+                                    TeamColor = Color3new(0.639216, 0.635294, 0.647059)
+                                end
+                                PlayerDrawings.Text.Color = TeamColor
+                                PlayerDrawings.Tracer.Color = TeamColor
+                            end
+                            PlayerDrawings.Text.Visible = true
+                            PlayerDrawings.Tracer.Visible = EspSettings.TracersEnabled
+                        else
+                            PlayerDrawings.Text.Visible = false
+                            PlayerDrawings.Tracer.Visible = false
+                        end
+                    else
+                        if PlayerDrawings then
+                            PlayerDrawings.Text.Visible = false
+                            PlayerDrawings.Tracer.Visible = false
+                        end
+                    end
+                end
+            end
+
+            RunService.RenderStepped:Connect(function() pcall(GetClosestPlayerAndRender) end)
+            local MainUI = UILibrary.new(Color3.fromRGB(255, 79, 87));
+            local Window = MainUI:LoadWindow('<font color="#ff4f57">fates</font> esp', UDim2.fromOffset(400, 279));
+            local ESP = Window.NewPage("esp");
+            local EspSettingsUI = ESP.NewSection("Esp");
+            local TracerSettingsUI = ESP.NewSection("Tracers");
+            EspSettingsUI.Toggle("Show Names", EspSettings.NamesEnabled, function(Callback) EspSettings.NamesEnabled = Callback end);
+            EspSettingsUI.Toggle("Show Health", EspSettings.HealthEnabled, function(Callback) EspSettings.HealthEnabled = Callback end);
+            EspSettingsUI.Slider("Render Distance", { Min = 0, Max = 50000, Default = math.clamp(EspSettings.RenderDistance, 0, 50000), Step = 10 }, function(Callback) EspSettings.RenderDistance = Callback end);
+            EspSettingsUI.Slider("Esp Size", { Min = 8, Max = 30, Default = EspSettings.Size, Step = 1}, function(Callback) EspSettings.Size = Callback SetProperties({ Text = { Size = Callback } }); end);
+            EspSettingsUI.ColorPicker("Esp Color", EspSettings.Color, function(Callback) EspSettings.TeamColors = false EspSettings.Color = Callback SetProperties({ Text = { Color = Callback }, Tracer = { Color = Callback } }); end);
+            EspSettingsUI.Toggle("Team Colors", EspSettings.TeamColors, function(Callback) EspSettings.TeamColors = Callback if (not Callback) then SetProperties({ Tracer = { Color = EspSettings.Color }; Text = { Color = EspSettings.Color } }) end end);
+            EspSettingsUI.Dropdown("Teams", {"Allies", "Enemies", "All"}, function(Callback) table.clear(EspSettings.BlacklistedTeams); if (Callback == "Enemies") then table.insert(EspSettings.BlacklistedTeams, LocalPlayer.Team); end if (Callback == "Allies") then local AllTeams = Teams:GetTeams(); table.remove(AllTeams, table.find(AllTeams, LocalPlayer.Team)); EspSettings.BlacklistedTeams = AllTeams end end)
+            TracerSettingsUI.Toggle("Enable Tracers", EspSettings.TracersEnabled, function(Callback) EspSettings.TracersEnabled = Callback SetProperties({ Tracer = { Visible = Callback } }); end);
+            TracerSettingsUI.Dropdown("To", {"Head", "Torso"}, function(Callback) EspSettings.TracerTo = Callback == "Torso" and "HumanoidRootPart" or Callback end);
+            TracerSettingsUI.Dropdown("From", {"Top", "Bottom", "Left", "Right"}, function(Callback)
+                local ViewportSize = CurrentCamera.ViewportSize
+                local From = Callback == "Top" and Vector2new(ViewportSize.X / 2, 0) or Callback == "Bottom" and Vector2new(ViewportSize.X / 2, ViewportSize.Y) or Callback == "Left" and Vector2new(0, ViewportSize.Y / 2) or Vector2new(ViewportSize.X, ViewportSize.Y / 2)
+                EspSettings.TracerFrom = From
+                SetProperties({ Tracer = { From = From } });
+            end)
+            TracerSettingsUI.Slider("Tracer Transparency", {Min = 0, Max = 1, Default = EspSettings.TracerTrancparency, Step = .1}, function(Callback) EspSettings.TracerTrancparency = Callback SetProperties({ Tracer = { Transparency = Callback } }); end);
+            TracerSettingsUI.Slider("Tracer Thickness", {Min = 0, Max = 5, Default = EspSettings.TracerThickness, Step = .1}, function(Callback) EspSettings.TracerThickness = Callback SetProperties({ Tracer = { Thickness = Callback } }); end);
+            Window.SetPosition(Settings.WindowPosition);
+            if (gethui) then
+                MainUI.UI.Parent = gethui();
+            else
+                local protect_gui = (syn or getgenv()).protect_gui
+                if (protect_gui) then protect_gui(MainUI.UI); end
+                MainUI.UI.Parent = game:GetService("CoreGui");
+            end
+            while wait(2.5) do
+                Settings.WindowPosition = Window.GetPosition();
+                local Encoded = HttpService:JSONEncode(EncodeConfig(Settings));
+                writefile("fates-esp.json", Encoded);
+            end
+        ]])()
+    end
+})
 InfiniteYieldTab:AddButton({
     Name = "InfiniteYield",
     Callback = function()
