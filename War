@@ -362,18 +362,15 @@ FuncoesEspeciaisTab:AddToggle({
         end
     end
 })
-
--- ===== FLY CORRIGIDO =====
 local FLYING = false
 local FLY_SPEED = 1
 local flyConnection
 
--- Slider de velocidade
 FuncoesEspeciaisTab:AddSlider({
     Name = "Fly Speed",
-    Min = 1,
-    Max = 200,
-    Default = FLY_SPEED,
+    Min = 1,        -- valor inicial
+    Max = 5000,     -- valor máximo
+    Default = 1,    -- valor padrão ao iniciar
     Color = Color3.fromRGB(255,255,255),
     Increment = 5,
     ValueName = "Speed",
@@ -382,7 +379,6 @@ FuncoesEspeciaisTab:AddSlider({
     end
 })
 
--- Função que ativa/desativa Fly
 local function toggleFly(state)
     local char = player.Character
     if not char then return end
@@ -417,8 +413,8 @@ local function toggleFly(state)
 
             local moveVector = Vector3.new()
             local camera = workspace.CurrentCamera
-
             local UserInputService = game:GetService("UserInputService")
+
             if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveVector += camera.CFrame.LookVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveVector -= camera.CFrame.LookVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveVector -= camera.CFrame.RightVector end
@@ -446,7 +442,6 @@ local function toggleFly(state)
     end
 end
 
--- Toggle Fly na GUI
 FuncoesEspeciaisTab:AddToggle({
     Name = "Fly",
     Default = false,
