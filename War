@@ -368,9 +368,9 @@ local flyConnection
 
 FuncoesEspeciaisTab:AddSlider({
     Name = "Fly Speed",
-    Min = 1,        -- valor inicial
-    Max = 5000,     -- valor máximo
-    Default = 1,    -- valor padrão ao iniciar
+    Min = 1,       
+    Max = 5000,     
+    Default = 1,    
     Color = Color3.fromRGB(255,255,255),
     Increment = 5,
     ValueName = "Speed",
