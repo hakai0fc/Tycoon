@@ -257,19 +257,35 @@ InfiniteYieldTab:AddButton({
         local player = game.Players.LocalPlayer
         if not player then return end
 
+        local function hackRepValues(repValues)
+            local function updateValue(valueName)
+                local value = repValues:FindFirstChild(valueName)
+                if value and value:IsA("IntValue") then
+                    value.Value = 9999999999
+                else
+                    repValues.ChildAdded:Connect(function(child)
+                        if child.Name == valueName and child:IsA("IntValue") then
+                            child.Value = 9999999999
+                        end
+                    end)
+                end
+            end
+
+            updateValue("Mag")
+            updateValue("StoredAmmo")
+        end
+
         local function hackTool(tool)
             if tool:IsA("Tool") then
                 local repValues = tool:FindFirstChild("RepValues")
                 if repValues then
-                    local mag = repValues:FindFirstChild("Mag")
-                    if mag and mag:IsA("IntValue") then
-                        mag.Value = 9999999999
-                    end
-
-                    local storedAmmo = repValues:FindFirstChild("StoredAmmo")
-                    if storedAmmo and storedAmmo:IsA("IntValue") then
-                        storedAmmo.Value = 9999999999
-                    end
+                    hackRepValues(repValues)
+                else
+                    tool.ChildAdded:Connect(function(child)
+                        if child.Name == "RepValues" then
+                            hackRepValues(child)
+                        end
+                    end)
                 end
             end
         end
@@ -283,11 +299,17 @@ InfiniteYieldTab:AddButton({
                 hackTool(tool)
             end
         end
+
+        player.Backpack.ChildAdded:Connect(hackTool)
+        if player.Character then
+            player.Character.ChildAdded:Connect(hackTool)
+        end
+
         OrionLib:MakeNotification({
             Name = "Ammo Hack",
-            Content = "✅ Municao infinita aplicada em todas as armas!",
+            Content = "✅ Municao infinita ativa em todas as armas, mesmo sem recarregar!",
             Image = "rbxassetid://4483345998",
-            Time = 3
+            Time = 1
         })
     end
 })
