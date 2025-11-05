@@ -306,49 +306,51 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
 local RunService = game:GetService("RunService")
+local player = game.Players.LocalPlayer
 local noclipAtivo = false
-local noclipConexao
+local conexao
+
 FuncoesEspeciaisTab:AddToggle({
     Name = "Noclip",
     Default = false,
     Save = false,
-    Flag = "NoclipToggle",
-    Callback = function(ativado)
-        local character = player.Character or player.CharacterAdded:Wait()
+    Callback = function(state)
+        noclipAtivo = state
 
-        if ativado then
+        if state then
             OrionLib:MakeNotification({
-                Name = "Noclip Ativado",
-                Content = "Você agora pode atravessar objetos!",
+                Name = "Noclip",
+                Content = "✅ Noclip ativado! Você pode atravessar objetos.",
                 Image = "rbxassetid://4483345998",
                 Time = 3
             })
 
-            noclipConexao = RunService.Stepped:Connect(function()
-                if player.Character then
-                    for _, part in pairs(player.Character:GetChildren()) do
+            conexao = RunService.Stepped:Connect(function()
+                local char = player.Character
+                if char then
+                    for _, part in pairs(char:GetDescendants()) do
                         if part:IsA("BasePart") then
                             part.CanCollide = false
                         end
                     end
                 end
             end)
-
         else
             OrionLib:MakeNotification({
-                Name = "Noclip Desativado",
-                Content = "Colisões restauradas!",
+                Name = "Noclip",
+                Content = "❌ Noclip desativado! Colisões restauradas.",
                 Image = "rbxassetid://4483345998",
                 Time = 3
             })
 
-            if noclipConexao then
-                noclipConexao:Disconnect()
-                noclipConexao = nil
+            if conexao then
+                conexao:Disconnect()
+                conexao = nil
             end
 
-            if player.Character then
-                for _, part in pairs(player.Character:GetChildren()) do
+            local char = player.Character
+            if char then
+                for _, part in pairs(char:GetDescendants()) do
                     if part:IsA("BasePart") then
                         part.CanCollide = true
                     end
