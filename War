@@ -146,6 +146,9 @@ local TeleportTab = Window:MakeTab({
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
+
+TeleportTab:AddSection({ Name = "TP-TORRE" })
+
 TeleportTab:AddButton({
     Name = "APLHA TORRE",
     Callback = function()
