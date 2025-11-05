@@ -141,6 +141,110 @@ HubExclusivoTab:AddButton({
         end
     end
 })
+local TeleportTab = Window:MakeTab({
+    Name = "TP TORRE TAB",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+TeleportTab:AddButton({
+    Name = "APLHA TORRE",
+    Callback = function()
+        local destino = Vector3.new(-360, 435, 132) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+TeleportTab:AddButton({
+    Name = "BRAVO TORRE",
+    Callback = function()
+        local destino = Vector3.new(-645, 435, -53) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+TeleportTab:AddButton({
+    Name = "CHARLIE TORRE",
+    Callback = function()
+        local destino = Vector3.new(-725, 435, -401) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+TeleportTab:AddButton({
+    Name = "CHARLIE TORRE",
+    Callback = function(-728, 435, -402)
+        local destino = Vector3.new(-532, 435, -706) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+TeleportTab:AddButton({
+    Name = "DELTA TORRE",
+    Callback = function()
+        local destino = Vector3.new(-532, 435, -706) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+TeleportTab:AddButton({
+    Name = "ECHO TORRE",
+    Callback = function()
+        local destino = Vector3.new(-191, 435, -774) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+TeleportTab:AddButton({
+    Name = "FOXTROT TORRE",
+    Callback = function()
+        local destino = Vector3.new(108, 435, -611) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+TeleportTab:AddButton({
+    Name = "HOTEL TORRE",
+    Callback = function()
+        local destino = Vector3.new(189, 435, -255) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+TeleportTab:AddButton({
+    Name = "OMEGA TORRE",
+    Callback = function()
+        local destino = Vector3.new(-13, 435, 69) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
 local InfiniteYieldTab = Window:MakeTab({
     Name = "FUNÇÕES A+",
     Icon = "rbxassetid://4483345998",
