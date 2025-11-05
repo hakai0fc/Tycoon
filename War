@@ -255,27 +255,40 @@ InfiniteYieldTab:AddButton({
     Name = "AMMO HACK",
     Callback = function()
         local player = game.Players.LocalPlayer
-if not player then return end
+        if not player then return end
 
-local backpack = player:FindFirstChild("Backpack")
-if not backpack then return end
+        local function hackTool(tool)
+            if tool:IsA("Tool") then
+                local repValues = tool:FindFirstChild("RepValues")
+                if repValues then
+                    local mag = repValues:FindFirstChild("Mag")
+                    if mag and mag:IsA("IntValue") then
+                        mag.Value = 9999999999
+                    end
 
-for _, tool in ipairs(backpack:GetChildren()) do
-    if tool:IsA("Tool") then
-        local repValues = tool:FindFirstChild("RepValues")
-        if repValues then
-            local mag = repValues:FindFirstChild("Mag")
-            if mag and mag:IsA("IntValue") then
-                mag.Value = 9999999999
-            end
-
-            local storedAmmo = repValues:FindFirstChild("StoredAmmo")
-            if storedAmmo and storedAmmo:IsA("IntValue") then
-                storedAmmo.Value = 9999999999
+                    local storedAmmo = repValues:FindFirstChild("StoredAmmo")
+                    if storedAmmo and storedAmmo:IsA("IntValue") then
+                        storedAmmo.Value = 9999999999
+                    end
+                end
             end
         end
-    end
-end
+
+        for _, tool in ipairs(player.Backpack:GetChildren()) do
+            hackTool(tool)
+        end
+
+        if player.Character then
+            for _, tool in ipairs(player.Character:GetChildren()) do
+                hackTool(tool)
+            end
+        end
+        OrionLib:MakeNotification({
+            Name = "Ammo Hack",
+            Content = "✅ Municao infinita aplicada em todas as armas!",
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
     end
 })
 InfiniteYieldTab:AddButton({
@@ -369,7 +382,7 @@ local flyConnection
 FuncoesEspeciaisTab:AddSlider({
     Name = "Fly Speed",
     Min = 1,       
-    Max = 5000,     
+    Max = 3500,     
     Default = 1,    
     Color = Color3.fromRGB(255,255,255),
     Increment = 5,
