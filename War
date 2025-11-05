@@ -317,18 +317,21 @@ FuncoesEspeciaisTab:AddToggle({
     Callback = function(state)
         noclipAtivo = state
 
+        local char = player.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
         if state then
             OrionLib:MakeNotification({
                 Name = "Noclip",
-                Content = "✅ Noclip ativado! Você pode atravessar objetos.",
+                Content = "✅ Noclip ativado!",
                 Image = "rbxassetid://4483345998",
                 Time = 3
             })
 
             conexao = RunService.Stepped:Connect(function()
-                local char = player.Character
-                if char then
-                    for _, part in pairs(char:GetDescendants()) do
+                local c = player.Character
+                if c and c:FindFirstChild("HumanoidRootPart") then
+                    for _, part in pairs(c:GetDescendants()) do
                         if part:IsA("BasePart") then
                             part.CanCollide = false
                         end
@@ -338,7 +341,7 @@ FuncoesEspeciaisTab:AddToggle({
         else
             OrionLib:MakeNotification({
                 Name = "Noclip",
-                Content = "❌ Noclip desativado! Colisões restauradas.",
+                Content = "❌ Noclip desativado!",
                 Image = "rbxassetid://4483345998",
                 Time = 3
             })
@@ -348,9 +351,9 @@ FuncoesEspeciaisTab:AddToggle({
                 conexao = nil
             end
 
-            local char = player.Character
-            if char then
-                for _, part in pairs(char:GetDescendants()) do
+            local c = player.Character
+            if c then
+                for _, part in pairs(c:GetDescendants()) do
                     if part:IsA("BasePart") then
                         part.CanCollide = true
                     end
