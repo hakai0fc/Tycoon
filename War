@@ -304,67 +304,54 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
+local RunService = game:GetService("RunService")
 local noclipAtivo = false
 local noclipConexao
+FuncoesEspeciaisTab:AddToggle({
+    Name = "Noclip",
+    Default = false,
+    Save = false,
+    Flag = "NoclipToggle",
+    Callback = function(ativado)
+        local character = player.Character or player.CharacterAdded:Wait()
 
-FuncoesEspeciaisTab:AddButton({
-    Name = "Noclip (Ativar/Desativar)",
-    Callback = function()
-        local speaker = game.Players.LocalPlayer
-        local root = speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart")
-        if not speaker.Character or not root then
-            warn("Personagem não carregado ainda.")
-            return
-        end
-
-        if not noclipAtivo then
-            noclipAtivo = true
+        if ativado then
             OrionLib:MakeNotification({
                 Name = "Noclip Ativado",
-                Content = "Você agora atravessa tudo!",
+                Content = "Você agora pode atravessar objetos!",
                 Image = "rbxassetid://4483345998",
                 Time = 3
             })
 
-            local bambam = Instance.new("BodyAngularVelocity")
-            bambam.Name = "NoclipRotation"
-            bambam.Parent = root
-            bambam.AngularVelocity = Vector3.new(0, 99999, 0)
-            bambam.MaxTorque = Vector3.new(0, math.huge, 0)
-            bambam.P = math.huge
-
-            noclipConexao = game:GetService("RunService").Stepped:Connect(function()
-                for _, v in pairs(speaker.Character:GetChildren()) do
-                    if v:IsA("BasePart") then
-                        v.CanCollide = false
-                        v.Massless = true
+            noclipConexao = RunService.Stepped:Connect(function()
+                if player.Character then
+                    for _, part in pairs(player.Character:GetChildren()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
+                        end
                     end
                 end
             end)
 
         else
-            noclipAtivo = false
             OrionLib:MakeNotification({
                 Name = "Noclip Desativado",
-                Content = "Colisões restauradas.",
+                Content = "Colisões restauradas!",
                 Image = "rbxassetid://4483345998",
                 Time = 3
             })
-            if root:FindFirstChild("NoclipRotation") then
-                root:FindFirstChild("NoclipRotation"):Destroy()
-            end
-            if speaker.Character then
-                for _, v in pairs(speaker.Character:GetChildren()) do
-                    if v:IsA("BasePart") then
-                        v.CanCollide = true
-                        v.Massless = false
-                    end
-                end
-            end
 
             if noclipConexao then
                 noclipConexao:Disconnect()
                 noclipConexao = nil
+            end
+
+            if player.Character then
+                for _, part in pairs(player.Character:GetChildren()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                    end
+                end
             end
         end
     end
