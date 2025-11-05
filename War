@@ -340,18 +340,15 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
-local RunService = game:GetService("RunService")
-local player = game.Players.LocalPlayer
-local noclipAtivo = false
-local conexao
-
 local noclipConnection
 local noclipAtivo = false
 
 local function toggleNoclip(state)
     local char = player.Character
     local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-    if not char or not humanoid then return end
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not char or not humanoid or not hrp then return end
+
     if noclipConnection then
         noclipConnection:Disconnect()
         noclipConnection = nil
@@ -371,7 +368,12 @@ local function toggleNoclip(state)
             if not noclipAtivo then return end
             for _, part in pairs(char:GetDescendants()) do
                 if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                    part.CanCollide = false
+                    -- Só desativa CanCollide se estiver acima do pé
+                    if part.Position.Y > hrp.Position.Y - 2 then
+                        part.CanCollide = false
+                    else
+                        part.CanCollide = true
+                    end
                 end
             end
         end)
@@ -384,10 +386,11 @@ local function toggleNoclip(state)
         })
 
         for _, part in pairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+            if part:IsA("BasePart") then
                 part.CanCollide = true
             end
         end
+
         humanoid.PlatformStand = false
         humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
     end
