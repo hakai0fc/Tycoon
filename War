@@ -397,15 +397,17 @@ FuncoesEspeciaisTab:AddToggle({
         end
     end
 })
+
 local FLYING = false
 local FLY_SPEED = 1
 local flyConnection
+local BG, BV 
 
 FuncoesEspeciaisTab:AddSlider({
     Name = "Fly Speed",
-    Min = 1,       
-    Max = 3500,     
-    Default = 1,    
+    Min = 1,
+    Max = 2500,
+    Default = FLY_SPEED,
     Color = Color3.fromRGB(255,255,255),
     Increment = 5,
     ValueName = "Speed",
@@ -421,16 +423,24 @@ local function toggleFly(state)
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     if not root or not humanoid then return end
 
+    if flyConnection then
+        flyConnection:Disconnect()
+        flyConnection = nil
+    end
+    if BG then BG:Destroy() end
+    if BV then BV:Destroy() end
+    humanoid.PlatformStand = false
+
     FLYING = state
 
     if FLYING then
-        local BG = Instance.new("BodyGyro")
+        BG = Instance.new("BodyGyro")
         BG.P = 9e4
         BG.MaxTorque = Vector3.new(9e9,9e9,9e9)
         BG.CFrame = root.CFrame
         BG.Parent = root
 
-        local BV = Instance.new("BodyVelocity")
+        BV = Instance.new("BodyVelocity")
         BV.MaxForce = Vector3.new(9e9,9e9,9e9)
         BV.Velocity = Vector3.new(0,0,0)
         BV.Parent = root
@@ -443,13 +453,14 @@ local function toggleFly(state)
                 BG:Destroy()
                 BV:Destroy()
                 humanoid.PlatformStand = false
+                BG, BV = nil, nil
                 return
             end
 
             local moveVector = Vector3.new()
             local camera = workspace.CurrentCamera
             local UserInputService = game:GetService("UserInputService")
-
+            
             if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveVector += camera.CFrame.LookVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveVector -= camera.CFrame.LookVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveVector -= camera.CFrame.RightVector end
@@ -465,15 +476,6 @@ local function toggleFly(state)
 
             BG.CFrame = CFrame.new(root.Position, root.Position + camera.CFrame.LookVector)
         end)
-    else
-        FLYING = false
-        if flyConnection then flyConnection:Disconnect() end
-        for _, part in pairs(char:GetDescendants()) do
-            if part:IsA("BodyGyro") or part:IsA("BodyVelocity") then
-                part:Destroy()
-            end
-        end
-        humanoid.PlatformStand = false
     end
 end
 
@@ -487,10 +489,9 @@ FuncoesEspeciaisTab:AddToggle({
 })
 
 player.CharacterAdded:Connect(function(char)
+    wait(1)
     if FLYING then
-        wait(1)
         toggleFly(true)
     end
 end)
-
 OrionLib:Init()
