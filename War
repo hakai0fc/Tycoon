@@ -298,7 +298,7 @@ InfiniteYieldTab:AddButton({
 })
 
 local FuncoesEspeciaisTab = Window:MakeTab({
-    Name = "Funções Especiais",
+    Name = "FUNÇÕES OP",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
@@ -359,6 +359,93 @@ FuncoesEspeciaisTab:AddToggle({
                     end
                 end
             end
+        end
+    end
+})
+local FlyToggle = false
+local FLYING = false
+local SPEED = 10 -- velocidade inicial
+local player = game.Players.LocalPlayer
+
+toggle:addcmd('flyspeed', {'flysp'}, function(args, speaker)
+    local speed = tonumber(args[1])
+    if speed then
+        SPEED = speed
+    end
+end)
+
+FuncoesEspeciaisTab:AddToggle({
+    Name = "Fly",
+    Default = false,
+    Callback = function(v)
+        local character = player.Character
+        if not character then return end
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        local root = character:FindFirstChild("HumanoidRootPart")
+        if not humanoid or not root then return end
+
+        FlyToggle = v
+        FLYING = v
+
+        if FlyToggle then
+            local BG = Instance.new("BodyGyro")
+            local BV = Instance.new("BodyVelocity")
+            BG.P = 9e4
+            BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+            BG.CFrame = root.CFrame
+            BG.Parent = root
+
+            BV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+            BV.Velocity = Vector3.new(0,0,0)
+            BV.Parent = root
+
+            humanoid.PlatformStand = true
+
+            local RunService = game:GetService("RunService")
+            local flyConnection
+            flyConnection = RunService.RenderStepped:Connect(function()
+                if not FLYING then
+                    flyConnection:Disconnect()
+                    BG:Destroy()
+                    BV:Destroy()
+                    humanoid.PlatformStand = false
+                    return
+                end
+
+                local camera = workspace.CurrentCamera
+                local moveVector = Vector3.new()
+                local UIS = game:GetService("UserInputService")
+
+                if UIS:IsKeyDown(Enum.KeyCode.W) then
+                    moveVector = moveVector + camera.CFrame.LookVector
+                end
+                if UIS:IsKeyDown(Enum.KeyCode.S) then
+                    moveVector = moveVector - camera.CFrame.LookVector
+                end
+                if UIS:IsKeyDown(Enum.KeyCode.A) then
+                    moveVector = moveVector - camera.CFrame.RightVector
+                end
+                if UIS:IsKeyDown(Enum.KeyCode.D) then
+                    moveVector = moveVector + camera.CFrame.RightVector
+                end
+                if UIS:IsKeyDown(Enum.KeyCode.Space) then
+                    moveVector = moveVector + Vector3.new(0,1,0)
+                end
+                if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then
+                    moveVector = moveVector - Vector3.new(0,1,0)
+                end
+
+                if moveVector.Magnitude > 0 then
+                    BV.Velocity = moveVector.Unit * SPEED
+                else
+                    BV.Velocity = Vector3.new(0,0,0)
+                end
+
+                BG.CFrame = camera.CFrame
+            end)
+        else
+            FLYING = false
+            humanoid.PlatformStand = false
         end
     end
 })
