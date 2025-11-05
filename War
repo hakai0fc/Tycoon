@@ -364,13 +364,14 @@ FuncoesEspeciaisTab:AddToggle({
 })
 
 local FLYING = false
-local FLY_SPEED = 50 
+local FLY_SPEED = 10
+local flyConnection
 
 FuncoesEspeciaisTab:AddSlider({
     Name = "Fly Speed",
     Min = 10,
     Max = 200,
-    Default = 50,
+    Default = 10,
     Color = Color3.fromRGB(255, 255, 255),
     Increment = 5,
     ValueName = "Speed",
@@ -379,7 +380,6 @@ FuncoesEspeciaisTab:AddSlider({
     end
 })
 
-local flyConnection
 FuncoesEspeciaisTab:AddToggle({
     Name = "Fly",
     Default = false,
@@ -447,3 +447,5 @@ FuncoesEspeciaisTab:AddToggle({
         end
     end
 })
+
+OrionLib:Init()
