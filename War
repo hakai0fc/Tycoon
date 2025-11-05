@@ -296,9 +296,10 @@ InfiniteYieldTab:AddButton({
         loadstring(game:HttpGet('https://raw.githubusercontent.com/hakai0fc/EdgeIY/refs/heads/main/infiniteyield'))()
     end
 })
+
 local FuncoesEspeciaisTab = Window:MakeTab({
     Name = "Funções Especiais",
-    Icon = "rbxassetid://7734053424",
+    Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
