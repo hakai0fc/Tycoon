@@ -362,10 +362,9 @@ FuncoesEspeciaisTab:AddToggle({
         end
     end
 })
-local FlyToggle = false
-local FLYING = false
-local SPEED = 10 -- velocidade inicial
 local player = game.Players.LocalPlayer
+local FLYING = false
+local SPEED = 10 
 
 toggle:addcmd('flyspeed', {'flysp'}, function(args, speaker)
     local speed = tonumber(args[1])
@@ -384,10 +383,9 @@ FuncoesEspeciaisTab:AddToggle({
         local root = character:FindFirstChild("HumanoidRootPart")
         if not humanoid or not root then return end
 
-        FlyToggle = v
         FLYING = v
 
-        if FlyToggle then
+        if FLYING then
             local BG = Instance.new("BodyGyro")
             local BV = Instance.new("BodyVelocity")
             BG.P = 9e4
@@ -404,11 +402,11 @@ FuncoesEspeciaisTab:AddToggle({
             local RunService = game:GetService("RunService")
             local flyConnection
             flyConnection = RunService.RenderStepped:Connect(function()
-                if not FLYING then
+                if not FLYING or not root or not humanoid then
                     flyConnection:Disconnect()
-                    BG:Destroy()
-                    BV:Destroy()
-                    humanoid.PlatformStand = false
+                    if BG then BG:Destroy() end
+                    if BV then BV:Destroy() end
+                    if humanoid then humanoid.PlatformStand = false end
                     return
                 end
 
@@ -416,24 +414,12 @@ FuncoesEspeciaisTab:AddToggle({
                 local moveVector = Vector3.new()
                 local UIS = game:GetService("UserInputService")
 
-                if UIS:IsKeyDown(Enum.KeyCode.W) then
-                    moveVector = moveVector + camera.CFrame.LookVector
-                end
-                if UIS:IsKeyDown(Enum.KeyCode.S) then
-                    moveVector = moveVector - camera.CFrame.LookVector
-                end
-                if UIS:IsKeyDown(Enum.KeyCode.A) then
-                    moveVector = moveVector - camera.CFrame.RightVector
-                end
-                if UIS:IsKeyDown(Enum.KeyCode.D) then
-                    moveVector = moveVector + camera.CFrame.RightVector
-                end
-                if UIS:IsKeyDown(Enum.KeyCode.Space) then
-                    moveVector = moveVector + Vector3.new(0,1,0)
-                end
-                if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then
-                    moveVector = moveVector - Vector3.new(0,1,0)
-                end
+                if UIS:IsKeyDown(Enum.KeyCode.W) then moveVector = moveVector + camera.CFrame.LookVector end
+                if UIS:IsKeyDown(Enum.KeyCode.S) then moveVector = moveVector - camera.CFrame.LookVector end
+                if UIS:IsKeyDown(Enum.KeyCode.A) then moveVector = moveVector - camera.CFrame.RightVector end
+                if UIS:IsKeyDown(Enum.KeyCode.D) then moveVector = moveVector + camera.CFrame.RightVector end
+                if UIS:IsKeyDown(Enum.KeyCode.Space) then moveVector = moveVector + Vector3.new(0,1,0) end
+                if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then moveVector = moveVector - Vector3.new(0,1,0) end
 
                 if moveVector.Magnitude > 0 then
                     BV.Velocity = moveVector.Unit * SPEED
@@ -443,6 +429,7 @@ FuncoesEspeciaisTab:AddToggle({
 
                 BG.CFrame = camera.CFrame
             end)
+
         else
             FLYING = false
             humanoid.PlatformStand = false
