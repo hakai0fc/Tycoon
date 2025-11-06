@@ -17,7 +17,7 @@ end)
 
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WaR",
+    Name = "HAKAI WAR",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "OrionTest",
@@ -398,6 +398,7 @@ local function stopNoclip()
         noclipConnection:Disconnect()
         noclipConnection = nil
     end
+
     local char = LP.Character
     if not char then return end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -413,14 +414,19 @@ local function stopNoclip()
         end
     end
 
-    task.wait(0.15)
+    task.wait(0.1)
     if humanoid then
         humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+        task.wait(0.05)
+        humanoid:ChangeState(Enum.HumanoidStateType.Standing)
     end
+
     if root and root.Parent then
         root.CFrame = posAtual
     end
 end
+
 local function startFly()
     local char = LP.Character
     if not char then return end
