@@ -362,12 +362,14 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
-local LP = game.Players.LocalPlayer
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
-local noclipAtivo = false
+local LP = Players.LocalPlayer
+
 local flyAtivo = false
+local noclipAtivo = false
 local flySpeed = 50
 
 local flyConnection
@@ -375,126 +377,238 @@ local noclipConnection
 local BG
 local BV
 
-local function resetCharacterProperties()
-    local char = LP.Character
-    if not char then return end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
+local function getCharacter()
+    return LP and LP.Character
+end
+
+local function waitForRoot(char)
+    if not char then return nil end
     local root = char:FindFirstChild("HumanoidRootPart")
-    if not humanoid or not root then return end
-    if BG then BG:Destroy() BG=nil end
-    if BV then BV:Destroy() BV=nil end
-    humanoid.PlatformStand=false
-    humanoid.AutoRotate=true
-    humanoid.WalkSpeed=16
-    humanoid.JumpPower=50
-    for _, part in pairs(char:GetDescendants()) do
-        if part:IsA("BasePart") and not part.Anchored then
-            part.CanCollide=true
-        end
+    while char and not root do
+        task.wait(0.1)
+        if not char.Parent then return nil end
+        root = char:FindFirstChild("HumanoidRootPart")
+    end
+    return root
+end
+
+local function destroyFlyParts()
+    if BG then
+        pcall(function() BG:Destroy() end)
+        BG = nil
+    end
+    if BV then
+        pcall(function() BV:Destroy() end)
+        BV = nil
     end
 end
 
 local function disconnectFly()
-    if flyConnection then flyConnection:Disconnect() flyConnection=nil end
-    if BG then BG:Destroy() BG=nil end
-    if BV then BV:Destroy() BV=nil end
+    if flyConnection then
+        pcall(function() flyConnection:Disconnect() end)
+        flyConnection = nil
+    end
+    destroyFlyParts()
 end
 
 local function disconnectNoclip()
-    if noclipConnection then noclipConnection:Disconnect() noclipConnection=nil end
+    if noclipConnection then
+        pcall(function() noclipConnection:Disconnect() end)
+        noclipConnection = nil
+    end
+end
+
+local function resetCharacterProperties()
+    local char = getCharacter()
+    if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.PlatformStand = false
+        humanoid.AutoRotate = true
+        humanoid.WalkSpeed = 16
+        humanoid.JumpPower = 50
+    end
+    for _, part in pairs(char:GetDescendants()) do
+        if part:IsA("BasePart") and not part.Anchored then
+            pcall(function() part.CanCollide = true end)
+        end
+    end
 end
 
 local function startNoclip()
-    local char = LP.Character
+    disconnectNoclip()
+    local char = getCharacter()
     if not char then return end
     noclipConnection = RunService.Stepped:Connect(function()
-        for _, part in pairs(char:GetDescendants()) do
+        local c = getCharacter()
+        if not c then return end
+        for _, part in pairs(c:GetDescendants()) do
             if part:IsA("BasePart") and not part.Anchored then
-                part.CanCollide=false
+                if part.CanCollide then
+                    pcall(function() part.CanCollide = false end)
+                end
             end
         end
     end)
 end
 
 local function startFly()
-    local char = LP.Character
+    disconnectFly()
+    local char = getCharacter()
     if not char then return end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
-    local root = char:FindFirstChild("HumanoidRootPart")
+    local root = waitForRoot(char)
     if not humanoid or not root then return end
-    BG=Instance.new("BodyGyro")
-    BG.P=9e4
-    BG.MaxTorque=Vector3.new(9e9,9e9,9e9)
-    BG.CFrame=root.CFrame
-    BG.Parent=root
-    BV=Instance.new("BodyVelocity")
-    BV.MaxForce=Vector3.new(9e9,9e9,9e9)
-    BV.Velocity=Vector3.new(0,0,0)
-    BV.Parent=root
-    humanoid.PlatformStand=true
-    humanoid.AutoRotate=false
-    humanoid.WalkSpeed=0
-    humanoid.JumpPower=0
-    flyConnection=RunService.RenderStepped:Connect(function()
+
+    BG = Instance.new("BodyGyro")
+    BG.P = 9e4
+    BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+    BG.CFrame = root.CFrame
+    BG.Parent = root
+
+    BV = Instance.new("BodyVelocity")
+    BV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+    BV.Velocity = Vector3.new(0, 0, 0)
+    BV.Parent = root
+
+    humanoid.PlatformStand = true
+    humanoid.AutoRotate = false
+    humanoid.WalkSpeed = 0
+    humanoid.JumpPower = 0
+
+    flyConnection = RunService.RenderStepped:Connect(function()
         if not flyAtivo then return end
-        local moveVector=Vector3.new()
-        local cam=workspace.CurrentCamera
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveVector+=cam.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveVector-=cam.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveVector-=cam.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveVector+=cam.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveVector+=Vector3.new(0,1,0) end
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then moveVector-=Vector3.new(0,1,0) end
-        if moveVector.Magnitude>0 then
-            BV.Velocity=moveVector.Unit*flySpeed
+        local cam = workspace.CurrentCamera
+        if not cam or not root then return end
+
+        local moveVector = Vector3.new()
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveVector = moveVector + cam.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveVector = moveVector - cam.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveVector = moveVector - cam.CFrame.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveVector = moveVector + cam.CFrame.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveVector = moveVector + Vector3.new(0, 1, 0) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then moveVector = moveVector - Vector3.new(0, 1, 0) end
+
+        if moveVector.Magnitude > 0 then
+            BV.Velocity = moveVector.Unit * flySpeed
         else
-            BV.Velocity=Vector3.new(0,0,0)
+            BV.Velocity = Vector3.new(0, 0, 0)
         end
-        BG.CFrame=CFrame.new(root.Position, root.Position+cam.CFrame.LookVector)
+
+        BG.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
     end)
 end
 
-local function toggleNoclip(state)
-    noclipAtivo=state
-    disconnectNoclip()
+function toggleNoclip(state)
+    noclipAtivo = state and true or false
     if noclipAtivo then
-        task.defer(function()
-            local char = LP.Character
-            local root = char:FindFirstChild("HumanoidRootPart")
-            while not root do task.wait() root = char:FindFirstChild("HumanoidRootPart") end
+        task.spawn(function()
+            local char = getCharacter()
+            local root = waitForRoot(char)
+            if not root then return end
             startNoclip()
-            OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({
+                Name = "Noclip",
+                Content = "✅ Noclip ativado!",
+                Image = "rbxassetid://4483345998",
+                Time = 2
+            })
         end)
     else
-        OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
+        disconnectNoclip()
+        local char = getCharacter()
+        if char then
+            for _, part in pairs(char:GetDescendants()) do
+                if part:IsA("BasePart") and not part.Anchored then
+                    pcall(function() part.CanCollide = true end)
+                end
+            end
+        end
+        OrionLib:MakeNotification({
+            Name = "Noclip",
+            Content = "❌ Noclip desativado!",
+            Image = "rbxassetid://4483345998",
+            Time = 2
+        })
     end
 end
 
-local function toggleFly(state)
-    flyAtivo=state
+function toggleFly(state)
+    flyAtivo = state and true or false
     disconnectFly()
     resetCharacterProperties()
     if flyAtivo then
-        task.defer(function()
+        task.spawn(function()
+            local char = getCharacter()
+            local root = waitForRoot(char)
+            if not root then return end
             startFly()
             if noclipAtivo then startNoclip() end
-            OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({
+                Name = "Fly",
+                Content = "✅ Fly ativado!",
+                Image = "rbxassetid://4483345998",
+                Time = 2
+            })
         end)
     else
         if noclipAtivo then startNoclip() end
-        OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
+        resetCharacterProperties()
+        OrionLib:MakeNotification({
+            Name = "Fly",
+            Content = "❌ Fly desativado!",
+            Image = "rbxassetid://4483345998",
+            Time = 2
+        })
     end
 end
 
-local tab = OrionLib:MakeTab({Name = "Fly/Noclip", Icon = "rbxassetid://4483345998", PremiumOnly = false})
-tab:AddSection({Name = "Movimentação"})
-tab:AddToggle({Name="Noclip",Default=false,Callback=toggleNoclip})
-tab:AddToggle({Name="Fly",Default=false,Callback=toggleFly})
-tab:AddSlider({Name="Velocidade Fly",Min=1,Max=2500,Default=50,Callback=function(value) flySpeed=value end})
+function setFlySpeed(val)
+    if type(val) ~= "number" then return end
+    flySpeed = val
+end
 
-LP.CharacterAdded:Connect(function()
-    task.wait(0.5)
+LP.CharacterAdded:Connect(function(char)
+    task.wait(0.4)
     resetCharacterProperties()
-    if flyAtivo then task.defer(startFly) end
-    if noclipAtivo then task.defer(startNoclip) end
+    if flyAtivo then
+        task.spawn(function()
+            local root = waitForRoot(char)
+            if not root then return end
+            startFly()
+            OrionLib:MakeNotification({
+                Name = "Fly",
+                Content = "✅ Fly reativado ao respawn!",
+                Image = "rbxassetid://4483345998",
+                Time = 2
+            })
+        end)
+    end
+    if noclipAtivo then
+        task.spawn(function()
+            local root = waitForRoot(char)
+            if not root then return end
+            startNoclip()
+            OrionLib:MakeNotification({
+                Name = "Noclip",
+                Content = "✅ Noclip reativado ao respawn!",
+                Image = "rbxassetid://4483345998",
+                Time = 2
+            })
+        end)
+    end
 end)
+
+task.spawn(function()
+    if LP.Character then
+        task.wait(0.2)
+        if flyAtivo then startFly() end
+        if noclipAtivo then startNoclip() end
+    end
+end)
+
+return {
+    toggleFly = toggleFly,
+    toggleNoclip = toggleNoclip,
+    setFlySpeed = setFlySpeed
+}
