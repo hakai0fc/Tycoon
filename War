@@ -184,14 +184,13 @@ local noclipAtivo = false
 
 local flyConnection, noclipConnection
 local BG, BV
-local flyWasActiveBeforeDeath = false
 
 local function startNoclip(char)
     if noclipConnection then noclipConnection:Disconnect() end
     noclipConnection = RunService.Stepped:Connect(function()
         if not char or not char.Parent then return end
         for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and not part.Anchored then
+            if part:IsA("BasePart") and part.CanCollide and not part.Anchored then
                 part.CanCollide = false
             end
         end
@@ -203,7 +202,7 @@ local function stopNoclip()
     local char = LP.Character
     if char then
         for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") then
+            if part:IsA("BasePart") and not part.Anchored then
                 part.CanCollide = true
             end
         end
@@ -259,18 +258,10 @@ LP.CharacterAdded:Connect(function(char)
     char:WaitForChild("HumanoidRootPart")
     task.wait(0.5)
     if noclipAtivo then startNoclip(char) end
-    if flyWasActiveBeforeDeath then
-        flyAtivo = true
-        startFly(char)
-        OrionLib:MakeNotification({Name="Fly", Content="♻️ Fly reativado após renascer!", Image="rbxassetid://4483345998", Time=2})
-        flyWasActiveBeforeDeath = false
-    elseif flyAtivo then
-        startFly(char)
-    end
+    if flyAtivo then startFly(char) end
     local humanoid = char:WaitForChild("Humanoid")
     humanoid.Died:Connect(function()
         if flyAtivo then
-            flyWasActiveBeforeDeath = true
             flyAtivo = false
             safeStopFly()
             OrionLib:MakeNotification({Name="Fly", Content="❌ Fly desativado (você morreu)", Image="rbxassetid://4483345998", Time=2})
@@ -322,5 +313,4 @@ FuncoesEspeciaisTab:AddSlider({
     Flag="flySpeed",
     Callback=function(v) flySpeed=v end
 })
-
 OrionLib:Init()
