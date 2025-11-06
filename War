@@ -340,25 +340,16 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local player = game.Players.LocalPlayer
-
 local noclipAtivo = false
 local noclipConnection
 local originalWalkSpeed = 16
 local originalJumpPower = 50
 
-local FLYING = false
-local FLY_SPEED = 5
-local flyConnection
-local BG, BV
-
 local function notify(title, text)
     OrionLib:MakeNotification({
         Name = title,
         Content = text,
-        Image = "rbxassetid://4483345998", 
+        Image = "rbxassetid://4483345998",
         Time = 2
     })
 end
@@ -373,11 +364,8 @@ local function toggleNoclip(state)
         noclipConnection:Disconnect()
         noclipConnection = nil
         noclipAtivo = false
-        if humanoid then
-            humanoid.WalkSpeed = originalWalkSpeed
-            humanoid.JumpPower = originalJumpPower
-            humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-        end
+        humanoid.WalkSpeed = originalWalkSpeed
+        humanoid.JumpPower = originalJumpPower
         for _, part in pairs(char:GetDescendants()) do
             if part:IsA("BasePart") then
                 part.CanCollide = true
@@ -392,13 +380,6 @@ local function toggleNoclip(state)
         originalJumpPower = humanoid.JumpPower
 
         noclipConnection = RunService.Stepped:Connect(function()
-            local char = player.Character
-            if not char then return end
-            local humanoid = char:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.WalkSpeed = originalWalkSpeed
-                humanoid.JumpPower = originalJumpPower
-            end
             for _, part in pairs(char:GetDescendants()) do
                 if part:IsA("BasePart") then
                     part.CanCollide = false
@@ -409,19 +390,31 @@ local function toggleNoclip(state)
     end
 end
 
-player.CharacterAdded:Connect(function(char)
+player.CharacterAdded:Connect(function()
     wait(1)
     if noclipAtivo then
         toggleNoclip(true)
     end
 end)
 
+FuncoesEspeciaisTab:AddToggle({
+    Name = "Noclip",
+    Default = false,
+    Save = false,
+    Callback = toggleNoclip
+})
+
+-- Fly
+local FLYING = false
+local FLY_SPEED = 50
+local flyConnection
+local BG, BV
+
 FuncoesEspeciaisTab:AddSlider({
     Name = "Fly Speed",
-    Min = 1,
-    Max = 2500,
+    Min = 10,
+    Max = 500,
     Default = FLY_SPEED,
-    Color = Color3.fromRGB(255,255,255),
     Increment = 5,
     ValueName = "Speed",
     Callback = function(value)
@@ -450,9 +443,6 @@ local function toggleFly(state)
     FLYING = state
 
     if FLYING then
-        originalWalkSpeed = humanoid.WalkSpeed
-        originalJumpPower = humanoid.JumpPower
-
         BG = Instance.new("BodyGyro")
         BG.P = 9e4
         BG.MaxTorque = Vector3.new(9e9,9e9,9e9)
@@ -472,22 +462,17 @@ local function toggleFly(state)
             if not FLYING then return end
 
             local moveVector = Vector3.new()
-            local camera = workspace.CurrentCamera
+            local cam = workspace.CurrentCamera
 
-            if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveVector += camera.CFrame.LookVector end
-            if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveVector -= camera.CFrame.LookVector end
-            if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveVector -= camera.CFrame.RightVector end
-            if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveVector += camera.CFrame.RightVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveVector += cam.CFrame.LookVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveVector -= cam.CFrame.LookVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveVector -= cam.CFrame.RightVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveVector += cam.CFrame.RightVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveVector += Vector3.new(0,1,0) end
             if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then moveVector -= Vector3.new(0,1,0) end
 
-            if moveVector.Magnitude > 0 then
-                BV.Velocity = moveVector.Unit * FLY_SPEED
-            else
-                BV.Velocity = Vector3.new(0,0,0)
-            end
-
-            BG.CFrame = CFrame.new(root.Position, root.Position + camera.CFrame.LookVector)
+            BV.Velocity = (moveVector.Magnitude > 0 and moveVector.Unit * FLY_SPEED) or Vector3.new(0,0,0)
+            BG.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
 
             if noclipAtivo then
                 for _, part in pairs(char:GetDescendants()) do
@@ -504,7 +489,6 @@ local function toggleFly(state)
     end
 end
 
--- Toggle Fly
 FuncoesEspeciaisTab:AddToggle({
     Name = "Fly",
     Default = false,
@@ -512,10 +496,11 @@ FuncoesEspeciaisTab:AddToggle({
     Callback = toggleFly
 })
 
-player.CharacterAdded:Connect(function(char)
+player.CharacterAdded:Connect(function()
     wait(1)
     if FLYING then
         toggleFly(true)
     end
 end)
+
 OrionLib:Init()
