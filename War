@@ -15,7 +15,6 @@ pcall(function()
     end)
 end)
 
-
 local Window = OrionLib:MakeWindow({
     Name = "HAKAI WAR",
     HidePremium = false,
