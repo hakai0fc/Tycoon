@@ -342,6 +342,7 @@ FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
 local noclipConnection
 local noclipAtivo = false
+local originalPlatformStand = false
 
 local function toggleNoclip(state)
     local char = player.Character
@@ -363,6 +364,10 @@ local function toggleNoclip(state)
             Image = "rbxassetid://4483345998",
             Time = 2
         })
+
+        -- Salva estado original do PlatformStand
+        originalPlatformStand = humanoid.PlatformStand
+        humanoid.PlatformStand = true 
 
         noclipConnection = RunService.Stepped:Connect(function()
             if not noclipAtivo then return end
@@ -391,7 +396,7 @@ local function toggleNoclip(state)
             end
         end
 
-        humanoid.PlatformStand = false
+        humanoid.PlatformStand = originalPlatformStand
         humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
     end
 end
