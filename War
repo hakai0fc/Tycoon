@@ -340,23 +340,19 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local StarterGui = game:GetService("StarterGui")
-local player = game.Players.LocalPlayer
+local function notify(Script, Noclip)
+    OrionLib:MakeNotification({
+        Name = title,
+        Content = text,
+        Image = "rbxassetid://4483345998",
+        Time = 2
+    })
+end
 
 local noclipAtivo = false
 local noclipConnection
 local originalWalkSpeed = 16
 local originalJumpPower = 50
-
-local function notify(title, text)
-    StarterGui:SetCore("SendNotification", {
-        Title = title,
-        Text = text,
-        Duration = 2
-    })
-end
 
 local function toggleNoclip(state)
     local char = player.Character
@@ -368,11 +364,8 @@ local function toggleNoclip(state)
         noclipConnection:Disconnect()
         noclipConnection = nil
         noclipAtivo = false
-        if humanoid then
-            humanoid.WalkSpeed = originalWalkSpeed
-            humanoid.JumpPower = originalJumpPower
-            humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-        end
+        humanoid.WalkSpeed = originalWalkSpeed
+        humanoid.JumpPower = originalJumpPower
         for _, part in pairs(char:GetDescendants()) do
             if part:IsA("BasePart") then
                 part.CanCollide = true
@@ -404,13 +397,6 @@ local function toggleNoclip(state)
     end
 end
 
-FuncoesEspeciaisTab:AddToggle({
-    Name = "Noclip",
-    Default = false,
-    Save = false,
-    Callback = toggleNoclip
-})
-
 player.CharacterAdded:Connect(function(char)
     wait(1)
     if noclipAtivo then
@@ -418,10 +404,15 @@ player.CharacterAdded:Connect(function(char)
     end
 end)
 
-local FLYING = false
+FuncoesEspeciaisTab:AddToggle({
+    Name = "Noclip",
+    Default = false,
+    Save = false,
+    Callback = toggleNoclip
+})
+
+
 local FLY_SPEED = 5
-local flyConnection
-local BG, BV
 
 FuncoesEspeciaisTab:AddSlider({
     Name = "Fly Speed",
@@ -435,6 +426,12 @@ FuncoesEspeciaisTab:AddSlider({
         FLY_SPEED = value
     end
 })
+
+local FLYING = false
+local flyConnection
+local BG, BV
+local originalFlyWalkSpeed = 16
+local originalFlyJumpPower = 50
 
 local function toggleFly(state)
     local char = player.Character
@@ -451,14 +448,13 @@ local function toggleFly(state)
     if BV then BV:Destroy() BV = nil end
 
     humanoid.PlatformStand = false
-    humanoid.WalkSpeed = originalWalkSpeed
-    humanoid.JumpPower = originalJumpPower
-
+    humanoid.WalkSpeed = originalFlyWalkSpeed
+    humanoid.JumpPower = originalFlyJumpPower
     FLYING = state
 
     if FLYING then
-        originalWalkSpeed = humanoid.WalkSpeed
-        originalJumpPower = humanoid.JumpPower
+        originalFlyWalkSpeed = humanoid.WalkSpeed
+        originalFlyJumpPower = humanoid.JumpPower
 
         BG = Instance.new("BodyGyro")
         BG.P = 9e4
@@ -511,6 +507,13 @@ local function toggleFly(state)
     end
 end
 
+player.CharacterAdded:Connect(function(char)
+    wait(1)
+    if FLYING then
+        toggleFly(true)
+    end
+end)
+
 FuncoesEspeciaisTab:AddToggle({
     Name = "Fly",
     Default = false,
@@ -518,10 +521,4 @@ FuncoesEspeciaisTab:AddToggle({
     Callback = toggleFly
 })
 
-player.CharacterAdded:Connect(function(char)
-    wait(1)
-    if FLYING then
-        toggleFly(true)
-    end
-end)
 OrionLib:Init()
