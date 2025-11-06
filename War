@@ -509,4 +509,4 @@ LP.CharacterAdded:Connect(function(char)
 			OrionLib:MakeNotification({Name="Fly", Content="❌ Fly desativado, você morreu!", Image="rbxassetid://4483345998", Time=2})  
 		end  
 	end)
-end)
+end) 
