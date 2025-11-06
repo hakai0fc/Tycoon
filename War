@@ -179,6 +179,11 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 })
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LP = Players.LocalPlayer
+
 local flyAtivo = false
 local flySpeed = 50
 local noclipAtivo = false
@@ -213,7 +218,7 @@ local function startNoclip(char)
     noclipConnection = RunService.Stepped:Connect(function()
         if not char or not char.Parent then return end
         for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and not part.Anchored and part.Name ~= "HumanoidRootPart" then
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
                 part.CanCollide = false
             end
         end
@@ -225,7 +230,7 @@ local function stopNoclip(restorePhysics)
     local char = LP.Character
     if char then
         for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and not part.Anchored then
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
                 part.CanCollide = true
             end
         end
@@ -259,7 +264,7 @@ local function startFly(char)
     humanoid.PlatformStand = true
     humanoid.AutoRotate = false
     flyConnection = RunService.RenderStepped:Connect(function()
-        if not flyAtivo then return end
+        if not flyAtivo or not root.Parent then return end
         local cam = workspace.CurrentCamera
         local move = Vector3.zero
         if UserInputService:IsKeyDown(Enum.KeyCode.W) then move += cam.CFrame.LookVector end
@@ -322,42 +327,51 @@ if LP.Character then
     onCharacter(LP.Character)
 end
 
-
-FuncoesEspeciaisTab:AddToggle({Name="Noclip",Default=false,Save=false,Flag="noclip",Callback=function(state)
-    noclipAtivo=state
-    if state then
-        if LP.Character then startNoclip(LP.Character) end
-        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
-    else
-        stopNoclip(true)
-        OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
+FuncoesEspeciaisTab:AddToggle({
+    Name="Noclip",
+    Default=false,
+    Save=false,
+    Flag="noclip",
+    Callback=function(state)
+        noclipAtivo=state
+        if state then
+            if LP.Character then startNoclip(LP.Character) end
+            OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
+        else
+            stopNoclip(true)
+            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
+        end
     end
-end})
+})
 
-
-FuncoesEspeciaisTab:AddToggle({Name="Fly",Default=false,Save=false,Flag="fly",Callback=function(state)
-    flyAtivo=state
-    if state then
-        if LP.Character then startFly(LP.Character) end
-        OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
-    else
-        safeStopFly()
-        OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
+FuncoesEspeciaisTab:AddToggle({
+    Name="Fly",
+    Default=false,
+    Save=false,
+    Flag="fly",
+    Callback=function(state)
+        flyAtivo=state
+        if state then
+            if LP.Character then startFly(LP.Character) end
+            OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
+        else
+            safeStopFly()
+            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
+        end
     end
-end})
-
+})
 
 FuncoesEspeciaisTab:AddSlider({
-	Name = "Fly Speed",
-	Min = 0,
-	Max = 2500,
-	Default = 50,
-	Color = Color3.fromRGB(255,255,255),
-	Increment = 1,
-	ValueName = "Fly Speed",
-	Callback = function(Value)
-		flySpeed = Value
-	end    
+    Name = "Fly Speed",
+    Min = 0,
+    Max = 2500,
+    Default = 50,
+    Color = Color3.fromRGB(255,255,255),
+    Increment = 1,
+    ValueName = "Fly Speed",
+    Callback = function(Value)
+        flySpeed = Value
+    end    
 })
 
 pcall(function()
