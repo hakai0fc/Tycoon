@@ -1,4 +1,4 @@
---Load Orion Library FUNCIONAL 100%
+--Load Orion Library
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/hakaiofc/Base/main/HUBORION'))()
 
 --ANTI AFK
@@ -368,11 +368,6 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local LP = Players.LocalPlayer
-
 local noclipAtivo = false
 local flyAtivo = false
 local flySpeed = 50
@@ -399,12 +394,38 @@ local function resetCharacterPhysics()
 	end
 end
 
+local function safeRestoreRootCollision(char)
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+	local params = RaycastParams.new()
+	params.FilterDescendantsInstances = {char}
+	params.FilterType = Enum.RaycastFilterType.Blacklist
+	local up = Vector3.new(0, 3, 0)
+	local res = workspace:Raycast(root.Position, up, params)
+	if not res then
+		root.CanCollide = true
+	else
+		root.CanCollide = false
+	end
+end
+
 local function disconnectNoclip()
 	if noclipConnection then
 		noclipConnection:Disconnect()
 		noclipConnection = nil
 	end
-	resetCharacterPhysics()
+	local char = LP.Character
+	if not char then return end
+	for _, part in pairs(char:GetDescendants()) do
+		if part:IsA("BasePart") and not part.Name == "HumanoidRootPart" then
+			part.CanCollide = true
+		end
+	end
+	safeRestoreRootCollision(char)
+	local humanoid = char:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+	end
 end
 
 local function startNoclip()
@@ -491,7 +512,6 @@ local function toggleNoclip(state)
 	else
 		disconnectNoclip()
 		task.wait(0.1)
-		resetCharacterPhysics()
 		OrionLib:MakeNotification({Name="Noclip", Content="❌ Noclip desativado!", Image="rbxassetid://4483345998", Time=2})
 	end
 end
@@ -511,11 +531,11 @@ end
 FuncoesEspeciaisTab:AddToggle({Name="Noclip", Default=false, Callback=toggleNoclip})
 FuncoesEspeciaisTab:AddToggle({Name="Fly", Default=false, Callback=toggleFly})
 FuncoesEspeciaisTab:AddSlider({
-	Name="Velocidade Fly", 
-	Min=1, 
-	Max=2500, 
-	Default=50, 
-	Color=Color3.fromRGB(255,255,255), 
+	Name="Velocidade Fly",
+	Min=1,
+	Max=2500,
+	Default=50,
+	Color=Color3.fromRGB(255,255,255),
 	Callback=function(value) flySpeed=value end
 })
 
@@ -536,9 +556,15 @@ LP.CharacterAdded:Connect(function(char)
 	local humanoid = char:WaitForChild("Humanoid")
 	humanoid.Died:Connect(function()
 		if flyAtivo then
+			flyAtivo = false
 			disconnectFly()
 			resetFlyProperties()
 			OrionLib:MakeNotification({Name="Fly", Content="❌ Fly desativado, você morreu!", Image="rbxassetid://4483345998", Time=2})
+		end
+		if noclipAtivo then
+			noclipAtivo = false
+			disconnectNoclip()
+			OrionLib:MakeNotification({Name="Noclip", Content="❌ Noclip desativado, você morreu!", Image="rbxassetid://4483345998", Time=2})
 		end
 	end)
 end)
