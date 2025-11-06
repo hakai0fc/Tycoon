@@ -353,7 +353,7 @@ local noclipConnection
 local BG
 local BV
 
-local function fullReset()
+local function resetCharacterProperties()
 	local char = player.Character or player.CharacterAdded:Wait()
 	local humanoid = char:FindFirstChildOfClass("Humanoid")
 	local root = char:FindFirstChild("HumanoidRootPart")
@@ -364,23 +364,16 @@ local function fullReset()
 	humanoid.AutoRotate = true
 	humanoid.WalkSpeed = 16
 	humanoid.JumpPower = 50
-	for _,p in pairs(char:GetDescendants()) do
+	for _, p in pairs(char:GetDescendants()) do
 		if p:IsA("BasePart") and not p.Anchored then
 			p.CanCollide = true
 		end
 	end
-	local animate = char:FindFirstChild("Animate")
-	if animate then
-		animate.Disabled = true
-		task.wait(0.05)
-		animate.Disabled = false
-	end
-	humanoid:ChangeState(Enum.HumanoidStateType.Running)
 end
 
 local function safeRestore()
 	if not flyAtivo then
-		fullReset()
+		resetCharacterProperties()
 	end
 end
 
@@ -487,13 +480,13 @@ FuncoesEspeciaisTab:AddSlider({
 
 player.CharacterAdded:Connect(function()
 	task.wait(1)
-	fullReset()
+	resetCharacterProperties()
 	if noclipAtivo then
 		startNoclip()
-		OrionLib:MakeNotification({Name="Noclip",Content="♻️ Reativado após respawn",Image="rbxassetid://4483345998",Time=2})
+		OrionLib:MakeNotification({Name="Noclip",Content="♻️ Noclip reativado após respawn",Image="rbxassetid://4483345998",Time=2})
 	end
 	if flyAtivo then
 		startFly()
-		OrionLib:MakeNotification({Name="Fly",Content="♻️ Reativado após respawn",Image="rbxassetid://4483345998",Time=2})
+		OrionLib:MakeNotification({Name="Fly",Content="♻️ Fly reativado após respawn",Image="rbxassetid://4483345998",Time=2})
 	end
 end)
