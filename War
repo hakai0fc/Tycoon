@@ -402,10 +402,7 @@ local function disconnectFly()
 end
 
 local function disconnectNoclip()
-    if noclipConnection then
-        noclipConnection:Disconnect()
-        noclipConnection=nil
-    end
+    if noclipConnection then noclipConnection:Disconnect() noclipConnection=nil end
     local char = LP.Character
     if char then
         for _, part in pairs(char:GetDescendants()) do
@@ -491,21 +488,32 @@ local function toggleFly(state)
     end
 end
 
-local tab = FuncoesEspeciaisTab
 tab:AddToggle({Name="Noclip", Default=false, Callback=toggleNoclip})
 tab:AddToggle({Name="Fly", Default=false, Callback=toggleFly})
 tab:AddSlider({Name="Velocidade Fly", Min=1, Max=2500, Default=50, Color=Color3.fromRGB(255,255,255), Callback=function(value) flySpeed=value end})
 
-local function onCharacterAdded(char)
+LP.CharacterAdded:Connect(function(char)
     task.wait(0.5)
     resetFlyProperties()
+    
     if flyAtivo then
         startFly()
-        OrionLib:MakeNotification({Name="Fly", Content="✅ Fly reativado após renascer!", Image="rbxassetid://4483345998", Time=2})
+        OrionLib:MakeNotification({
+            Name = "Fly",
+            Content = "✅ Fly reativado após renascer!",
+            Image = "rbxassetid://4483345998",
+            Time = 2
+        })
     end
+
     if noclipAtivo then
         startNoclip()
-        OrionLib:MakeNotification({Name="Noclip", Content="✅ Noclip reativado após renascer!", Image="rbxassetid://4483345998", Time=2})
+        OrionLib:MakeNotification({
+            Name = "Noclip",
+            Content = "✅ Noclip reativado após renascer!",
+            Image = "rbxassetid://4483345998",
+            Time = 2
+        })
     end
 
     local humanoid = char:WaitForChild("Humanoid")
@@ -513,9 +521,12 @@ local function onCharacterAdded(char)
         if flyAtivo then
             disconnectFly()
             resetFlyProperties()
-            OrionLib:MakeNotification({Name="Fly", Content="❌ Fly desativado, você morreu!", Image="rbxassetid://4483345998", Time=2})
+            OrionLib:MakeNotification({
+                Name = "Fly",
+                Content = "❌ Fly desativado, você morreu!",
+                Image = "rbxassetid://4483345998",
+                Time = 2
+            })
         end
     end)
-end
-
-LP.CharacterAdded:Connect(onCharacterAdded)
+end)
