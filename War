@@ -193,6 +193,7 @@ local function startNoclip()
         for _, part in ipairs(char:GetDescendants()) do
             if part:IsA("BasePart") and not part.Anchored then
                 part.CanCollide = false
+                part.CustomPhysicalProperties = PhysicalProperties.new(0,0,0)
             end
         end
     end)
@@ -205,10 +206,23 @@ local function stopNoclip()
     end
     local char = LP.Character
     if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if root then
+        root.Velocity = Vector3.zero
+        root.RotVelocity = Vector3.zero
+        root.CFrame = CFrame.new(root.Position)
+    end
     for _, part in ipairs(char:GetDescendants()) do
         if part:IsA("BasePart") and not part.Anchored then
             part.CanCollide = true
+            part.CustomPhysicalProperties = PhysicalProperties.new()
         end
+    end
+    if humanoid then
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+        humanoid.PlatformStand = false
+        humanoid.AutoRotate = true
     end
 end
 
@@ -306,6 +320,5 @@ end)
 FuncoesEspeciaisTab:AddToggle({Name="Noclip", Default=false, Save=true, Flag="noclip", Callback=toggleNoclip})
 FuncoesEspeciaisTab:AddToggle({Name="Fly", Default=false, Save=true, Flag="fly", Callback=toggleFly})
 FuncoesEspeciaisTab:AddSlider({Name="Fly Speed", Min=1, Max=2500, Default=50, Color=Color3.fromRGB(255,255,255), Save=true, Flag="flySpeed", Callback=function(v) flySpeed=v end})
-
 
 OrionLib:Init()
