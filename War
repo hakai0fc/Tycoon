@@ -377,6 +377,21 @@ local noclipConnection
 local BG
 local BV
 
+local function safeRestoreRootCollision(char)
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if not root then return end
+	local params = RaycastParams.new()
+	params.FilterDescendantsInstances = {char}
+	params.FilterType = Enum.RaycastFilterType.Blacklist
+	local up = Vector3.new(0, 3, 0)
+	local res = workspace:Raycast(root.Position, up, params)
+	if not res then
+		root.CanCollide = true
+	else
+		root.CanCollide = false
+	end
+end
+
 local function resetCharacterPhysics()
 	local char = LP.Character
 	if not char then return end
@@ -394,21 +409,6 @@ local function resetCharacterPhysics()
 	end
 end
 
-local function safeRestoreRootCollision(char)
-	local root = char and char:FindFirstChild("HumanoidRootPart")
-	if not root then return end
-	local params = RaycastParams.new()
-	params.FilterDescendantsInstances = {char}
-	params.FilterType = Enum.RaycastFilterType.Blacklist
-	local up = Vector3.new(0, 3, 0)
-	local res = workspace:Raycast(root.Position, up, params)
-	if not res then
-		root.CanCollide = true
-	else
-		root.CanCollide = false
-	end
-end
-
 local function disconnectNoclip()
 	if noclipConnection then
 		noclipConnection:Disconnect()
@@ -417,7 +417,7 @@ local function disconnectNoclip()
 	local char = LP.Character
 	if not char then return end
 	for _, part in pairs(char:GetDescendants()) do
-		if part:IsA("BasePart") and not part.Name == "HumanoidRootPart" then
+		if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
 			part.CanCollide = true
 		end
 	end
