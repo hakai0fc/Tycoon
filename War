@@ -1,4 +1,4 @@
---Load Orion Library
+--Load Orion Library FUNCIONAL
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/hakaiofc/Base/main/HUBORION'))()
 
 --ANTI AFK
