@@ -377,7 +377,6 @@ local noclipConnection
 local BG
 local BV
 
--- Reseta apenas as propriedades que o Fly altera
 local function resetFlyProperties()
     local char = LP.Character
     if not char then return end
@@ -518,13 +517,11 @@ tab:AddSlider({
 local function onCharacterAdded(char)
     task.wait(0.5)
     resetFlyProperties()
-
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     if humanoid then
         humanoid.Died:Connect(function()
             if flyAtivo then
                 disconnectFly()
-                resetFlyProperties()
                 OrionLib:MakeNotification({
                     Name = "Fly",
                     Content = "❌ Fly desativado ao morrer!",
@@ -534,7 +531,6 @@ local function onCharacterAdded(char)
             end
         end)
     end
-
     if flyAtivo then
         task.defer(function()
             startFly()
@@ -546,7 +542,6 @@ local function onCharacterAdded(char)
             })
         end)
     end
-
     if noclipAtivo then
         task.defer(startNoclip)
         OrionLib:MakeNotification({
