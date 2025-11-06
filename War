@@ -360,13 +360,13 @@ InfiniteYieldTab:AddButton({
     end
 })
 
-local FunçõesEspeciaisTab = Window:MakeTab({
+local FuncoesEspeciaisTab = Window:MakeTab({
     Name = "FUNÇÕES OP",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-FunçõesEspeciaisTab:AddSection({ Name = "PODERES" })
+FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
 local noclipAtivo = false
 local flyAtivo = false
