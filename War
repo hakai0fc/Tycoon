@@ -496,9 +496,26 @@ tab:AddToggle({Name="Noclip", Default=false, Callback=toggleNoclip})
 tab:AddToggle({Name="Fly", Default=false, Callback=toggleFly})
 tab:AddSlider({Name="Velocidade Fly", Min=1, Max=2500, Default=50, Color=Color3.fromRGB(255,255,255), Callback=function(value) flySpeed=value end})
 
-LP.CharacterAdded:Connect(function(char)
+local function onCharacterAdded(char)
     task.wait(0.5)
     resetFlyProperties()
-    if flyAtivo then startFly() end
-    if noclipAtivo then startNoclip() end
-end)
+    if flyAtivo then
+        startFly()
+        OrionLib:MakeNotification({Name="Fly", Content="✅ Fly reativado após renascer!", Image="rbxassetid://4483345998", Time=2})
+    end
+    if noclipAtivo then
+        startNoclip()
+        OrionLib:MakeNotification({Name="Noclip", Content="✅ Noclip reativado após renascer!", Image="rbxassetid://4483345998", Time=2})
+    end
+
+    local humanoid = char:WaitForChild("Humanoid")
+    humanoid.Died:Connect(function()
+        if flyAtivo then
+            disconnectFly()
+            resetFlyProperties()
+            OrionLib:MakeNotification({Name="Fly", Content="❌ Fly desativado, você morreu!", Image="rbxassetid://4483345998", Time=2})
+        end
+    end)
+end
+
+LP.CharacterAdded:Connect(onCharacterAdded)
