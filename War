@@ -383,12 +383,15 @@ local function resetCharacterProperties()
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     local root = char:FindFirstChild("HumanoidRootPart")
     if not humanoid or not root then return end
+
     if BG then BG:Destroy() BG=nil end
     if BV then BV:Destroy() BV=nil end
+
     humanoid.PlatformStand=false
     humanoid.AutoRotate=true
     humanoid.WalkSpeed=16
     humanoid.JumpPower=50
+
     for _, part in pairs(char:GetDescendants()) do
         if part:IsA("BasePart") and not part.Anchored then
             part.CanCollide=true
@@ -472,6 +475,7 @@ local function toggleNoclip(state)
             })
         end)
     else
+        resetCharacterProperties()
         OrionLib:MakeNotification({
             Name="Noclip",
             Content="❌ Noclip desativado!",
@@ -497,6 +501,7 @@ local function toggleFly(state)
             })
         end)
     else
+        resetCharacterProperties()
         if noclipAtivo then startNoclip() end
         OrionLib:MakeNotification({
             Name="Fly",
@@ -528,6 +533,7 @@ local function onCharacterAdded(char)
         humanoid.Died:Connect(function()
             if flyAtivo then
                 disconnectFly()
+                resetCharacterProperties()
                 OrionLib:MakeNotification({
                     Name = "Fly",
                     Content = "❌ Fly desativado ao morrer!",
