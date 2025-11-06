@@ -1,7 +1,7 @@
--- Load Orion Library
+--Load Orion Library
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/hakaiofc/Base/main/HUBORION'))()
 
--- ANTI AFK
+--ANTI AFK
 pcall(function()
     local VirtualUser = game:service'VirtualUser'
     game:service'Players'.LocalPlayer.Idled:connect(function()
@@ -10,11 +10,11 @@ pcall(function()
     end)
 end)
 
--- GLOBALS
+--GLOBALS
 local LP = game.Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Criando Interface
+--Criando Interface
 local Window = OrionLib:MakeWindow({
     Name = "War HUB",
     HidePremium = false,
@@ -24,12 +24,12 @@ local Window = OrionLib:MakeWindow({
 })
 
 local HubExclusivoTab = Window:MakeTab({
-    Name = "Menu Exclusivo",
+    Name = "TP BASES",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-HubExclusivoTab:AddSection({ Name = "Auto-TP" })
+HubExclusivoTab:AddSection({ Name = "AUTO-TP" })
 
 HubExclusivoTab:AddButton({
     Name = "TP ARVORE KOTH",
