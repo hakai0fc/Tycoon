@@ -367,8 +367,8 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LP = Players.LocalPlayer
 
-local flyAtivo = false
 local noclipAtivo = false
+local flyAtivo = false
 local flySpeed = 50
 
 local flyConnection
@@ -383,10 +383,10 @@ local function resetFlyProperties()
     if not humanoid then return end
     if BG then BG:Destroy() BG=nil end
     if BV then BV:Destroy() BV=nil end
-    humanoid.PlatformStand = false
-    humanoid.AutoRotate = true
-    humanoid.WalkSpeed = 16
-    humanoid.JumpPower = 50
+    humanoid.PlatformStand=false
+    humanoid.AutoRotate=true
+    humanoid.WalkSpeed=16
+    humanoid.JumpPower=50
 end
 
 local function disconnectFly()
@@ -406,7 +406,7 @@ local function startNoclip()
     noclipConnection = RunService.Stepped:Connect(function()
         for _, part in pairs(char:GetDescendants()) do
             if part:IsA("BasePart") and not part.Anchored then
-                part.CanCollide = false
+                part.CanCollide=false
             end
         end
     end)
@@ -419,21 +419,19 @@ local function startFly()
     local root = char:FindFirstChild("HumanoidRootPart")
     if not humanoid or not root then return end
     disconnectFly()
-    BG = Instance.new("BodyGyro")
-    BG.P = 9e4
-    BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
-    BG.CFrame = root.CFrame
-    BG.Parent = root
-
-    BV = Instance.new("BodyVelocity")
-    BV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-    BV.Velocity = Vector3.new(0,0,0)
-    BV.Parent = root
-
-    humanoid.PlatformStand = true
-    humanoid.AutoRotate = false
-    humanoid.WalkSpeed = 0
-    humanoid.JumpPower = 0
+    BG=Instance.new("BodyGyro")
+    BG.P=9e4
+    BG.MaxTorque=Vector3.new(9e9,9e9,9e9)
+    BG.CFrame=root.CFrame
+    BG.Parent=root
+    BV=Instance.new("BodyVelocity")
+    BV.MaxForce=Vector3.new(9e9,9e9,9e9)
+    BV.Velocity=Vector3.new(0,0,0)
+    BV.Parent=root
+    humanoid.PlatformStand=true
+    humanoid.AutoRotate=false
+    humanoid.WalkSpeed=0
+    humanoid.JumpPower=0
 
     flyConnection = RunService.RenderStepped:Connect(function()
         if not flyAtivo then return end
@@ -497,9 +495,17 @@ local function toggleFly(state)
     end
 end
 
-local function setFlySpeed(value)
-    flySpeed = value
-end
+local tab = FuncoesEspeciaisTab
+tab:AddToggle({Name="Noclip", Default=false, Callback=toggleNoclip})
+tab:AddToggle({Name="Fly", Default=false, Callback=toggleFly})
+tab:AddSlider({
+    Name="Velocidade Fly",
+    Min=1,
+    Max=2500,
+    Default=50,
+    Color = Color3.fromRGB(255,255,255),
+    Callback=function(value) flySpeed = value end
+})
 
 local function onCharacterAdded(char)
     task.wait(0.5)
@@ -542,9 +548,3 @@ LP.CharacterAdded:Connect(onCharacterAdded)
 if LP.Character then
     onCharacterAdded(LP.Character)
 end
-
-return {
-    toggleFly = toggleFly,
-    toggleNoclip = toggleNoclip,
-    setFlySpeed = setFlySpeed
-}
