@@ -325,4 +325,5 @@ FuncoesEspeciaisTab:AddSlider({
     Flag="flySpeed",
     Callback=function(v) flySpeed=v end
 })
+
 OrionLib:Init()
