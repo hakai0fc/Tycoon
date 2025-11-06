@@ -291,25 +291,25 @@ local function onCharacter(char)
             flyWasActiveBeforeDeath = true
             flyAtivo = false
             safeStopFly()
-            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado (você morreu)",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
         end
         if noclipAtivo then
             noclipWasActiveBeforeDeath = true
             noclipAtivo = false
             stopNoclip(true)
-            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado (você morreu)",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
         end
     end)
     if flyWasActiveBeforeDeath then
         flyAtivo = true
         startFly(char)
-        OrionLib:MakeNotification({Name="Fly",Content="✅ Fly reativado (respawn)",Image="rbxassetid://4483345998",Time=2})
+        OrionLib:MakeNotification({Name="Fly",Content="✅ Fly reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
         flyWasActiveBeforeDeath = false
     end
     if noclipWasActiveBeforeDeath then
         noclipAtivo = true
         startNoclip(char)
-        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip reativado (respawn)",Image="rbxassetid://4483345998",Time=2})
+        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
         noclipWasActiveBeforeDeath = false
     end
 end
@@ -341,6 +341,17 @@ FuncoesEspeciaisTab:AddToggle({Name="Fly",Default=false,Save=false,Flag="fly",Ca
     end
 end})
 
-FuncoesEspeciaisTab:AddSlider({Name="Fly Speed",Min=1,Max=2500,Default=50,Color=Color3.fromRGB(255,255,255),Save=true,Flag="flySpeed",Callback=function(v) flySpeed=v end})
+FuncoesEspeciaisTab:AddSlider({
+	Name = "Fly Speed",
+	Min = 0,
+	Max = 2500,
+	Default = 50,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "Fly Speed",
+	Callback = function(Value)
+		print(Value)
+	end    
+})
 
 OrionLib:Init()
