@@ -410,12 +410,13 @@ local function stopNoclip()
     end
 
     task.wait(0.1)
+    -- CORREÇÃO: Reset de animação sem usar GettingUp
     if humanoid then
         if humanoid:FindFirstChild("Animator") then
-            local anim = Instance.new("Animation")
-            local temp = humanoid:FindFirstChild("Animator"):LoadAnimation(anim)
-            temp:Stop()
-            anim:Destroy()
+            local animator = humanoid:FindFirstChild("Animator")
+            for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+                track:Stop()
+            end
         end
         humanoid:ChangeState(Enum.HumanoidStateType.Physics)
         task.wait(0.05)
