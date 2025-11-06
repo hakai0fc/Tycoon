@@ -369,15 +369,15 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
---=== SISTEMA DE FLY E NOCLIP APRIMORADO ===--
+--=== SISTEMA DE FLY + NOCLIP REFINADO ===--
 
 local noclipAtivo = false
 local flyAtivo = false
 local flySpeed = 50
 local flyConnection, noclipConnection
 local BG, BV
-local rootBeforeDeath = nil
 
+-- Força o personagem a se levantar (usado ao morrer ou parar fly)
 local function levantar()
     local char = LP.Character
     if char then
@@ -388,7 +388,7 @@ local function levantar()
     end
 end
 
--- Noclip aprimorado (sem arremessar)
+--=== NOCLIP SEM EXPULSAR ===--
 local function startNoclip()
     local char = LP.Character
     if not char then return end
@@ -408,24 +408,32 @@ local function stopNoclip()
         noclipConnection:Disconnect()
         noclipConnection = nil
     end
+
     local char = LP.Character
     if not char then return end
-
-    -- Evita arremesso mantendo a posição atual antes de voltar colisão
     local root = char:FindFirstChild("HumanoidRootPart")
-    if root then
-        local posAtual = root.CFrame
-        task.wait(0.05)
-        for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and not part.Anchored then
-                part.CanCollide = true
-            end
+    if not root then return end
+
+    -- Armazena a posição exata antes de reativar colisão
+    local posAtual = root.CFrame
+
+    -- Reativa a colisão sem aplicar nenhuma força
+    for _, part in ipairs(char:GetDescendants()) do
+        if part:IsA("BasePart") and not part.Anchored then
+            part.CanCollide = true
+            part.AssemblyLinearVelocity = Vector3.zero
+            part.AssemblyAngularVelocity = Vector3.zero
         end
+    end
+
+    -- Restaura a posição exata do personagem
+    task.wait()
+    if root and root.Parent then
         root.CFrame = posAtual
     end
 end
 
--- Fly aprimorado
+--=== FLY COMPLETO ===--
 local function startFly()
     local char = LP.Character
     if not char then return end
@@ -459,7 +467,12 @@ local function startFly()
         if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0,1,0) end
         if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then move -= Vector3.new(0,1,0) end
 
-        BV.Velocity = move.Magnitude > 0 and move.Unit * flySpeed or Vector3.zero
+        if move.Magnitude > 0 then
+            BV.Velocity = move.Unit * flySpeed
+        else
+            BV.Velocity = Vector3.zero
+        end
+
         BG.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
     end)
 end
@@ -468,6 +481,7 @@ local function stopFly()
     if flyConnection then flyConnection:Disconnect() flyConnection = nil end
     if BG then BG:Destroy() BG = nil end
     if BV then BV:Destroy() BV = nil end
+
     local char = LP.Character
     if not char then return end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -501,7 +515,7 @@ local function toggleFly(state)
     end
 end
 
---=== REATIVAÇÃO APÓS MORTE ===--
+--=== GERENCIAMENTO APÓS MORTE ===--
 LP.CharacterAdded:Connect(function(char)
     task.wait(1)
     local humanoid = char:WaitForChild("Humanoid")
@@ -525,7 +539,7 @@ LP.CharacterAdded:Connect(function(char)
     end)
 end)
 
---=== ELEMENTOS DO MENU ===--
+--=== CONTROLES NA GUI ===--
 FuncoesEspeciaisTab:AddToggle({
     Name="Noclip",
     Default=false,
