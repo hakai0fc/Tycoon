@@ -264,10 +264,14 @@ local function stopNoclip()
     if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
     local char = LP.Character
     if char then
+        local parts = {}
         for _, part in ipairs(char:GetDescendants()) do
             if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
-                part.CanCollide = true
+                table.insert(parts, part)
             end
+        end
+        for _, part in ipairs(parts) do
+            part.CanCollide = true
         end
         safeRestoreHumanoid(char:FindFirstChildOfClass("Humanoid"))
     end
@@ -319,20 +323,10 @@ FuncoesEspeciaisTab:AddToggle({
         noclipAtivo = state
         if state then
             if LP.Character then startNoclip(LP.Character) end
-            OrionLib:MakeNotification({
-                Name = "Noclip",
-                Content = "✅ Noclip ativado!",
-                Image = "rbxassetid://4483345998",
-                Time = 2
-            })
+            OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
         else
             stopNoclip()
-            OrionLib:MakeNotification({
-                Name = "Noclip",
-                Content = "❌ Noclip desativado!",
-                Image = "rbxassetid://4483345998",
-                Time = 2
-            })
+            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
         end
     end
 })
@@ -346,20 +340,10 @@ FuncoesEspeciaisTab:AddToggle({
         flyAtivo = state
         if state then
             if LP.Character then startFly(LP.Character) end
-            OrionLib:MakeNotification({
-                Name = "Fly",
-                Content = "✅ Fly ativado!",
-                Image = "rbxassetid://4483345998",
-                Time = 2
-            })
+            OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
         else
             safeStopFly()
-            OrionLib:MakeNotification({
-                Name = "Fly",
-                Content = "❌ Fly desativado!",
-                Image = "rbxassetid://4483345998",
-                Time = 2
-            })
+            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
         end
     end
 })
@@ -369,14 +353,14 @@ FuncoesEspeciaisTab:AddSlider({
     Min = 0,
     Max = 2500,
     Default = 50,
-    Color = Color3.fromRGB(255, 255, 255),
+    Color = Color3.fromRGB(255,255,255),
     Increment = 1,
     ValueName = "Fly Speed",
     Callback = function(Value)
         flySpeed = Value
-    end    
+    end
 })
 
 pcall(function()
     OrionLib:Init()
-end) 
+end)
