@@ -397,7 +397,6 @@ local function stopNoclip()
         noclipConnection:Disconnect()
         noclipConnection = nil
     end
-
     local char = LP.Character
     if not char then return end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -413,14 +412,13 @@ local function stopNoclip()
         end
     end
 
-    task.wait(0.1)
+    task.wait(0.15)
     if humanoid then
         humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
         humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
         task.wait(0.05)
         humanoid:ChangeState(Enum.HumanoidStateType.Standing)
     end
-
     if root and root.Parent then
         root.CFrame = posAtual
     end
@@ -453,11 +451,7 @@ local function startFly()
         if UserInputService:IsKeyDown(Enum.KeyCode.D) then move += cam.CFrame.RightVector end
         if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0,1,0) end
         if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then move -= Vector3.new(0,1,0) end
-        if move.Magnitude > 0 then
-            BV.Velocity = move.Unit * flySpeed
-        else
-            BV.Velocity = Vector3.zero
-        end
+        BV.Velocity = move.Magnitude > 0 and move.Unit * flySpeed or Vector3.zero
         BG.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
     end)
 end
@@ -473,6 +467,8 @@ local function stopFly()
         humanoid.PlatformStand = false
         humanoid.AutoRotate = true
         humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+        task.wait(0.05)
+        humanoid:ChangeState(Enum.HumanoidStateType.Standing)
     end
 end
 
