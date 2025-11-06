@@ -15,7 +15,7 @@ pcall(function()
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR💀",
+    Name = "HAKAI WAR",
     HidePremium = false,
     SaveConfig = true,           
     ConfigFolder = "OrionTest",  
@@ -194,6 +194,8 @@ local function restoreCharacterPhysics()
     if root then
         root.Velocity = Vector3.zero
         root.RotVelocity = Vector3.zero
+        root.AssemblyLinearVelocity = Vector3.zero
+        root.AssemblyAngularVelocity = Vector3.zero
     end
     if humanoid then
         humanoid.PlatformStand = false
@@ -299,13 +301,13 @@ local function onCharacter(char)
     if flyWasActiveBeforeDeath then
         flyAtivo = true
         startFly(char)
-        OrionLib:MakeNotification({Name="Fly",Content="✅ Fly reativado (renascimento)",Image="rbxassetid://4483345998",Time=2})
+        OrionLib:MakeNotification({Name="Fly",Content="✅ Fly reativado (respawn)",Image="rbxassetid://4483345998",Time=2})
         flyWasActiveBeforeDeath = false
     end
     if noclipWasActiveBeforeDeath then
         noclipAtivo = true
         startNoclip(char)
-        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip reativado (renascimento)",Image="rbxassetid://4483345998",Time=2})
+        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip reativado (respawn)",Image="rbxassetid://4483345998",Time=2})
         noclipWasActiveBeforeDeath = false
     end
 end
