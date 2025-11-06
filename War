@@ -371,7 +371,6 @@ local function restoreCharacter()
     for _, part in pairs(char:GetDescendants()) do
         if part:IsA("BasePart") then
             part.CanCollide = true
-            part.Anchored = false
         end
     end
 
@@ -383,8 +382,8 @@ local function getFeetParts(char)
     local feet = {}
     for _, part in pairs(char:GetChildren()) do
         if part:IsA("BasePart") then
-            local name = part.Name:lower()
-            if name:find("foot") or name:find("leg") then
+            local lname = part.Name:lower()
+            if lname:find("foot") or lname:find("leg") then
                 table.insert(feet, part)
             end
         end
@@ -395,23 +394,20 @@ end
 local function toggleNoclip(state)
     local char = player.Character
     if not char then return end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if not humanoid then return end
 
-    if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
     noclipAtivo = state
 
-    if noclipAtivo then
-        originalWalkSpeed = humanoid.WalkSpeed
-        originalJumpPower = humanoid.JumpPower
+    if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
 
+    if noclipAtivo then
         noclipConnection = RunService.Stepped:Connect(function()
+            if not char.Parent then return end
             local feet = getFeetParts(char)
+
             for _, part in pairs(char:GetDescendants()) do
                 if part:IsA("BasePart") then
                     local isFoot = table.find(feet, part)
                     if isFoot then
-                        -- Colide só com chão
                         local rayOrigin = part.Position
                         local rayDirection = Vector3.new(0, -5, 0)
                         local rayParams = RaycastParams.new()
@@ -426,7 +422,11 @@ local function toggleNoclip(state)
             end
         end)
     else
-        restoreCharacter()
+        for _, part in pairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
+        end
     end
 end
 
