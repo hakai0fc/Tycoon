@@ -341,6 +341,7 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local player = game.Players.LocalPlayer
 
 local noclipAtivo = false
@@ -361,9 +362,8 @@ local function toggleNoclip(state)
         if humanoid then
             humanoid.WalkSpeed = originalWalkSpeed
             humanoid.JumpPower = originalJumpPower
-            humanoid:ChangeState(Enum.HumanoidStateType.GettingUp) -- reseta animações
+            humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
         end
-
         for _, part in pairs(char:GetDescendants()) do
             if part:IsA("BasePart") then
                 part.CanCollide = true
@@ -407,19 +407,10 @@ player.CharacterAdded:Connect(function(char)
     end
 end)
 
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local player = game.Players.LocalPlayer
-
 local FLYING = false
 local FLY_SPEED = 1
 local flyConnection
 local BG, BV
-local originalWalkSpeed = 16
-local originalJumpPower = 50
-
-local noclipAtivo = false
-local noclipConnection
 
 FuncoesEspeciaisTab:AddSlider({
     Name = "Fly Speed",
@@ -451,9 +442,6 @@ local function toggleFly(state)
     FLYING = state
 
     if FLYING then
-        originalWalkSpeed = humanoid.WalkSpeed
-        originalJumpPower = humanoid.JumpPower
-
         BG = Instance.new("BodyGyro")
         BG.P = 9e4
         BG.MaxTorque = Vector3.new(9e9,9e9,9e9)
@@ -489,6 +477,7 @@ local function toggleFly(state)
             end
 
             BG.CFrame = CFrame.new(root.Position, root.Position + camera.CFrame.LookVector)
+
             if noclipAtivo then
                 for _, part in pairs(char:GetDescendants()) do
                     if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
@@ -506,5 +495,4 @@ FuncoesEspeciaisTab:AddToggle({
     Save = false,
     Callback = toggleFly
 })
-
 OrionLib:Init()
