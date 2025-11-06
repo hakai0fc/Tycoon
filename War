@@ -407,10 +407,18 @@ player.CharacterAdded:Connect(function(char)
     end
 end)
 
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+
 local FLYING = false
-local FLY_SPEED = 1
+local FLY_SPEED = 5
 local flyConnection
 local BG, BV
+local originalWalkSpeed = 16
+local originalJumpPower = 50
+
+local noclipAtivo = false
 
 FuncoesEspeciaisTab:AddSlider({
     Name = "Fly Speed",
@@ -432,9 +440,13 @@ local function toggleFly(state)
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     if not root or not humanoid then return end
 
-    if flyConnection then flyConnection:Disconnect() flyConnection = nil end
+    if flyConnection then
+        flyConnection:Disconnect()
+        flyConnection = nil
+    end
     if BG then BG:Destroy() BG = nil end
     if BV then BV:Destroy() BV = nil end
+
     humanoid.PlatformStand = false
     humanoid.WalkSpeed = originalWalkSpeed
     humanoid.JumpPower = originalJumpPower
@@ -442,6 +454,9 @@ local function toggleFly(state)
     FLYING = state
 
     if FLYING then
+        originalWalkSpeed = humanoid.WalkSpeed
+        originalJumpPower = humanoid.JumpPower
+
         BG = Instance.new("BodyGyro")
         BG.P = 9e4
         BG.MaxTorque = Vector3.new(9e9,9e9,9e9)
@@ -495,4 +510,12 @@ FuncoesEspeciaisTab:AddToggle({
     Save = false,
     Callback = toggleFly
 })
+
+player.CharacterAdded:Connect(function(char)
+    wait(1)
+    if FLYING then
+        toggleFly(true)
+    end
+end)
+
 OrionLib:Init()
