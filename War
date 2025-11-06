@@ -498,7 +498,7 @@ FuncoesEspeciaisTab:AddSlider({
     Max = 2500,
     Default = 50,
     Increment = 10,
+    Color = Color3.fromRGB(255,255,255),
     Callback = setFlySpeed
 })
-
 OrionLib:Init()
