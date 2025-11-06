@@ -202,7 +202,6 @@ local function stopNoclip()
         noclipConnection:Disconnect()
         noclipConnection = nil
     end
-
     local char = LP.Character
     if not char then return end
     for _, part in ipairs(char:GetDescendants()) do
@@ -219,8 +218,8 @@ local function startFly()
     local root = char:FindFirstChild("HumanoidRootPart")
     if not humanoid or not root then return end
     BG = Instance.new("BodyGyro")
-    BG.P = 9e4
     BG.MaxTorque = Vector3.new(9e9,9e9,9e9)
+    BG.P = 9e4
     BG.CFrame = root.CFrame
     BG.Parent = root
     BV = Instance.new("BodyVelocity")
@@ -282,10 +281,14 @@ end
 LP.CharacterAdded:Connect(function(char)
     task.wait(1)
     local humanoid = char:WaitForChild("Humanoid")
-    if noclipAtivo then startNoclip() end
+    if noclipAtivo then
+        startNoclip()
+        OrionLib:MakeNotification({Name="Noclip",Content="♻️ Noclip reativado após renascer!",Image="rbxassetid://4483345998",Time=2})
+    end
     if flyWasActiveBeforeDeath then
         flyAtivo = true
         startFly()
+        OrionLib:MakeNotification({Name="Fly",Content="♻️ Fly reativado após renascer!",Image="rbxassetid://4483345998",Time=2})
         flyWasActiveBeforeDeath = false
     end
     humanoid.Died:Connect(function()
@@ -293,6 +296,7 @@ LP.CharacterAdded:Connect(function(char)
             flyWasActiveBeforeDeath = true
             flyAtivo = false
             stopFly()
+            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado! (você morreu)",Image="rbxassetid://4483345998",Time=2})
         end
     end)
 end)
