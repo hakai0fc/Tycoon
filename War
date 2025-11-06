@@ -380,15 +380,18 @@ end
 local function toggleNoclip(state)
     local char = player.Character
     if not char then return end
+
     if noclipConnection then
         noclipConnection:Disconnect()
         noclipConnection = nil
     end
+
     noclipAtivo = state
+
     if noclipAtivo then
         noclipConnection = RunService.Stepped:Connect(function()
             for _, part in pairs(char:GetDescendants()) do
-                if part:IsA("BasePart") then
+                if part:IsA("BasePart") and not part.Anchored then
                     part.CanCollide = false
                 end
             end
@@ -400,8 +403,8 @@ local function toggleNoclip(state)
             Time = 2
         })
     else
-        for _, part in pairs(char:GetDescendants()) do
-            if part:IsA("BasePart") then
+        for _, part in pairs(char:GetChildren()) do
+            if part:IsA("BasePart") and not part.Anchored then
                 part.CanCollide = true
             end
         end
@@ -411,6 +414,11 @@ local function toggleNoclip(state)
             Image = "rbxassetid://4483345998",
             Time = 2
         })
+        -- 🔄 Força o Humanoid a atualizar sem resetar animações
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+        end
     end
 end
 
