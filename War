@@ -16,7 +16,7 @@ pcall(function()
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR",
+    Name = "HAKAI WAR1",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "OrionTest",
@@ -360,13 +360,13 @@ InfiniteYieldTab:AddButton({
     end
 })
 
-local FuncoesEspeciaisTab = Window:MakeTab({
+local FunçõesEspeciaisTab = Window:MakeTab({
     Name = "FUNÇÕES OP",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
+FunçõesEspeciaisTab:AddSection({ Name = "PODERES" })
 
 local noclipAtivo = false
 local flyAtivo = false
@@ -517,17 +517,17 @@ LP.CharacterAdded:Connect(function(char)
     end)
 end)
 
-FuncoesEspeciaisTab:AddToggle({
+FunçõesEspeciaisTab:AddToggle({
     Name="Noclip",
     Default=false,
     Callback=toggleNoclip
 })
-FuncoesEspeciaisTab:AddToggle({
+FunçõesEspeciaisTab:AddToggle({
     Name="Fly",
     Default=false,
     Callback=toggleFly
 })
-FuncoesEspeciaisTab:AddSlider({
+FunçõesEspeciaisTab:AddSlider({
     Name="Velocidade Fly",
     Min=1,
     Max=2500,
