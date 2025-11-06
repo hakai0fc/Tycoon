@@ -342,12 +342,21 @@ FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
 local player = game.Players.LocalPlayer
 
 local noclipAtivo = false
 local noclipConnection
 local originalWalkSpeed = 16
 local originalJumpPower = 50
+
+local function notify(title, text)
+    StarterGui:SetCore("SendNotification", {
+        Title = title,
+        Text = text,
+        Duration = 2
+    })
+end
 
 local function toggleNoclip(state)
     local char = player.Character
@@ -369,6 +378,7 @@ local function toggleNoclip(state)
                 part.CanCollide = true
             end
         end
+        notify("Noclip", "Desativado")
     end
 
     if state then
@@ -390,6 +400,7 @@ local function toggleNoclip(state)
                 end
             end
         end)
+        notify("Noclip", "Ativado")
     end
 end
 
@@ -407,18 +418,10 @@ player.CharacterAdded:Connect(function(char)
     end
 end)
 
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local player = game.Players.LocalPlayer
-
 local FLYING = false
 local FLY_SPEED = 5
 local flyConnection
 local BG, BV
-local originalWalkSpeed = 16
-local originalJumpPower = 50
-
-local noclipAtivo = false
 
 FuncoesEspeciaisTab:AddSlider({
     Name = "Fly Speed",
@@ -477,7 +480,7 @@ local function toggleFly(state)
 
             local moveVector = Vector3.new()
             local camera = workspace.CurrentCamera
-            
+
             if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveVector += camera.CFrame.LookVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveVector -= camera.CFrame.LookVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveVector -= camera.CFrame.RightVector end
@@ -501,6 +504,10 @@ local function toggleFly(state)
                 end
             end
         end)
+
+        notify("Fly", "Ativado")
+    else
+        notify("Fly", "Desativado")
     end
 end
 
@@ -517,5 +524,4 @@ player.CharacterAdded:Connect(function(char)
         toggleFly(true)
     end
 end)
-
 OrionLib:Init()
