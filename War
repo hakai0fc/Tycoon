@@ -4,22 +4,21 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LP = Players.LocalPlayer
 
-local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/hakaiofc/Base/main/HUBORION'))()
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/hakai0fc/Orion/refs/heads/main/BaseHub'))()
 
---ANTI AFK
 pcall(function()
-    local VirtualUser = game:service'VirtualUser'
-    game:service'Players'.LocalPlayer.Idled:connect(function()
+    local VirtualUser = game:GetService('VirtualUser')
+    LP.Idled:Connect(function()
         VirtualUser:CaptureController()
         VirtualUser:ClickButton2(Vector2.new())
     end)
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR1",
+    Name = "HAKAI WAR",
     HidePremium = false,
-    SaveConfig = true,
-    ConfigFolder = "OrionTest",
+    SaveConfig = true,           
+    ConfigFolder = "OrionTest",  
     IntroEnabled = false
 })
 
@@ -28,243 +27,55 @@ local HubExclusivoTab = Window:MakeTab({
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
-
 HubExclusivoTab:AddSection({ Name = "AUTO-TP" })
 
-HubExclusivoTab:AddButton({
-    Name = "TP ARVORE KOTH",
-    Callback = function()
-        local destino = Vector3.new(-274, 558, -366) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
+local function createTPButton(tab, name, pos)
+    tab:AddButton({
+        Name = name,
+        Callback = function()
+            if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+                LP.Character:MoveTo(pos)
+            else
+                warn("Personagem não encontrado ou carregando...")
+            end
         end
-    end
-})
-HubExclusivoTab:AddButton({
-    Name = "TP ARVORE KOTH2",
-    Callback = function()
-        local destino = Vector3.new(-272, 561, -246) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-HubExclusivoTab:AddButton({
-    Name = "TP ARVORE KOTH3",
-    Callback = function()
-        local destino = Vector3.new(-205, 563, -378) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-HubExclusivoTab:AddButton({
-    Name = "TP ARVORE KOTH4",
-    Callback = function()
-        local destino = Vector3.new(-271, 560, -248) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-HubExclusivoTab:AddButton({
-    Name = "TP ALPHA",
-    Callback = function()
-        local destino = Vector3.new(-278, 435, 173) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-HubExclusivoTab:AddButton({
-    Name = "TP BRAVO",
-    Callback = function()
-        local destino = Vector3.new(-620, 435, 38) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-HubExclusivoTab:AddButton({
-    Name = "TP CHARLIE",
-    Callback = function()
-        local destino = Vector3.new(-773, 435, -319) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-HubExclusivoTab:AddButton({
-    Name = "TP DELTA",
-    Callback = function()
-        local destino = Vector3.new(-623, 435, -680) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-HubExclusivoTab:AddButton({
-    Name = "TP ECHO",
-    Callback = function()
-        local destino = Vector3.new(-276, 435, -821) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-HubExclusivoTab:AddButton({
-    Name = "TP FOXTROT",
-    Callback = function()
-        local destino = Vector3.new(83, 435, -700) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-HubExclusivoTab:AddButton({
-    Name = "TP HOTEL",
-    Callback = function()
-        local destino = Vector3.new(233, 435, -338) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-HubExclusivoTab:AddButton({
-    Name = "TP OMEGA",
-    Callback = function()
-        local destino = Vector3.new(76, 435, 43) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
+    })
+end
+
+createTPButton(HubExclusivoTab, "TP ARVORE KOTH", Vector3.new(-274, 558, -366))
+createTPButton(HubExclusivoTab, "TP ARVORE KOTH2", Vector3.new(-272, 561, -246))
+createTPButton(HubExclusivoTab, "TP ARVORE KOTH3", Vector3.new(-205, 563, -378))
+createTPButton(HubExclusivoTab, "TP ARVORE KOTH4", Vector3.new(-271, 560, -248))
+createTPButton(HubExclusivoTab, "TP ALPHA", Vector3.new(-278, 435, 173))
+createTPButton(HubExclusivoTab, "TP BRAVO", Vector3.new(-620, 435, 38))
+createTPButton(HubExclusivoTab, "TP CHARLIE", Vector3.new(-773, 435, -319))
+createTPButton(HubExclusivoTab, "TP DELTA", Vector3.new(-623, 435, -680))
+createTPButton(HubExclusivoTab, "TP ECHO", Vector3.new(-276, 435, -821))
+createTPButton(HubExclusivoTab, "TP FOXTROT", Vector3.new(83, 435, -700))
+createTPButton(HubExclusivoTab, "TP HOTEL", Vector3.new(233, 435, -338))
+createTPButton(HubExclusivoTab, "TP OMEGA", Vector3.new(76, 435, 43))
+
 local TeleportTab = Window:MakeTab({
     Name = "TP TORRE TAB",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
-
 TeleportTab:AddSection({ Name = "TP-TORRE" })
 
-TeleportTab:AddButton({
-    Name = "APLHA TORRE",
-    Callback = function()
-        local destino = Vector3.new(-360, 435, 132) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-TeleportTab:AddButton({
-    Name = "BRAVO TORRE",
-    Callback = function()
-        local destino = Vector3.new(-645, 435, -53) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-TeleportTab:AddButton({
-    Name = "CHARLIE TORRE",
-    Callback = function()
-        local destino = Vector3.new(-532, 435, -706)
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-TeleportTab:AddButton({
-    Name = "DELTA TORRE",
-    Callback = function()
-        local destino = Vector3.new(-532, 435, -706) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-TeleportTab:AddButton({
-    Name = "ECHO TORRE",
-    Callback = function()
-        local destino = Vector3.new(-191, 435, -774) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-TeleportTab:AddButton({
-    Name = "FOXTROT TORRE",
-    Callback = function()
-        local destino = Vector3.new(108, 435, -611) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-TeleportTab:AddButton({
-    Name = "HOTEL TORRE",
-    Callback = function()
-        local destino = Vector3.new(189, 435, -255) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
-TeleportTab:AddButton({
-    Name = "OMEGA TORRE",
-    Callback = function()
-        local destino = Vector3.new(-13, 435, 69) 
-        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-            LP.Character:MoveTo(destino)
-        else
-            warn("Personagem não encontrado ou carregando...")
-        end
-    end
-})
+createTPButton(TeleportTab, "ALPHA TORRE", Vector3.new(-360, 435, 132))
+createTPButton(TeleportTab, "BRAVO TORRE", Vector3.new(-645, 435, -53))
+createTPButton(TeleportTab, "CHARLIE TORRE", Vector3.new(-532, 435, -706))
+createTPButton(TeleportTab, "DELTA TORRE", Vector3.new(-532, 435, -706))
+createTPButton(TeleportTab, "ECHO TORRE", Vector3.new(-191, 435, -774))
+createTPButton(TeleportTab, "FOXTROT TORRE", Vector3.new(108, 435, -611))
+createTPButton(TeleportTab, "HOTEL TORRE", Vector3.new(189, 435, -255))
+createTPButton(TeleportTab, "OMEGA TORRE", Vector3.new(-13, 435, 69))
+
 local InfiniteYieldTab = Window:MakeTab({
     Name = "FUNÇÕES A+",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
-
 InfiniteYieldTab:AddSection({ Name = "FUNÇÕES ADICIONAIS" })
 
 InfiniteYieldTab:AddButton({
@@ -282,7 +93,7 @@ InfiniteYieldTab:AddButton({
 InfiniteYieldTab:AddButton({
     Name = "AMMO HACK",
     Callback = function()
-        local player = game.Players.LocalPlayer
+        local player = LP
         if not player then return end
 
         local function hackRepValues(repValues)
@@ -298,7 +109,6 @@ InfiniteYieldTab:AddButton({
                     end)
                 end
             end
-
             updateValue("Mag")
             updateValue("StoredAmmo")
         end
@@ -360,13 +170,12 @@ InfiniteYieldTab:AddButton({
     end
 })
 
-local FunçõesEspeciaisTab = Window:MakeTab({
+local FuncoesEspeciaisTab = Window:MakeTab({
     Name = "FUNÇÕES OP",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
-
-FunçõesEspeciaisTab:AddSection({ Name = "PODERES" })
+FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
 local noclipAtivo = false
 local flyAtivo = false
@@ -396,34 +205,10 @@ local function stopNoclip()
 
     local char = LP.Character
     if not char then return end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-
-    local posAtual = root.CFrame
     for _, part in ipairs(char:GetDescendants()) do
         if part:IsA("BasePart") and not part.Anchored then
             part.CanCollide = true
-            part.AssemblyLinearVelocity = Vector3.zero
-            part.AssemblyAngularVelocity = Vector3.zero
         end
-    end
-
-    task.wait(0.1)
-    if humanoid then
-        if humanoid:FindFirstChild("Animator") then
-            local anim = Instance.new("Animation")
-            local temp = humanoid:FindFirstChild("Animator"):LoadAnimation(anim)
-            temp:Stop()
-            anim:Destroy()
-        end
-        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-        task.wait(0.05)
-        humanoid:ChangeState(Enum.HumanoidStateType.Standing)
-    end
-
-    if root and root.Parent then
-        root.CFrame = posAtual
     end
 end
 
@@ -469,9 +254,6 @@ local function stopFly()
     if humanoid then
         humanoid.PlatformStand = false
         humanoid.AutoRotate = true
-        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-        task.wait(0.05)
-        humanoid:ChangeState(Enum.HumanoidStateType.Standing)
     end
 end
 
@@ -500,14 +282,10 @@ end
 LP.CharacterAdded:Connect(function(char)
     task.wait(1)
     local humanoid = char:WaitForChild("Humanoid")
-    if noclipAtivo then
-        startNoclip()
-        OrionLib:MakeNotification({Name="Noclip",Content="♻️ Noclip reativado após renascer!",Image="rbxassetid://4483345998",Time=2})
-    end
+    if noclipAtivo then startNoclip() end
     if flyWasActiveBeforeDeath then
         flyAtivo = true
         startFly()
-        OrionLib:MakeNotification({Name="Fly",Content="♻️ Fly reativado após renascer!",Image="rbxassetid://4483345998",Time=2})
         flyWasActiveBeforeDeath = false
     end
     humanoid.Died:Connect(function()
@@ -515,26 +293,35 @@ LP.CharacterAdded:Connect(function(char)
             flyWasActiveBeforeDeath = true
             flyAtivo = false
             stopFly()
-            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
         end
     end)
 end)
 
 FuncoesEspeciaisTab:AddToggle({
-    Name="Noclip",
-    Default=false,
-    Callback=toggleNoclip
+    Name = "Noclip",
+    Default = false,
+    Save = true,
+    Flag = "noclip",
+    Callback = toggleNoclip
 })
+
 FuncoesEspeciaisTab:AddToggle({
-    Name="Fly",
-    Default=false,
-    Callback=toggleFly
+    Name = "Fly",
+    Default = false,
+    Save = true,
+    Flag = "fly",
+    Callback = toggleFly
 })
+
 FuncoesEspeciaisTab:AddSlider({
-    Name="Velocidade Fly",
-    Min=1,
-    Max=2500,
-    Default=50,
-    Color=Color3.fromRGB(255,255,255),
-    Callback=function(v) flySpeed=v end
+    Name = "Velocidade Fly",
+    Min = 1,
+    Max = 2500,
+    Default = 50,
+    Color = Color3.fromRGB(255,255,255),
+    Save = true,
+    Flag = "flySpeed",
+    Callback = function(v) flySpeed = v end
 })
+
+OrionLib:Init()
