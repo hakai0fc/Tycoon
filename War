@@ -379,6 +379,10 @@ local flyWasActiveBeforeDeath = false
 local function startNoclip()
     local char = LP.Character
     if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, false)
+    end
     if noclipConnection then noclipConnection:Disconnect() end
     noclipConnection = RunService.Stepped:Connect(function()
         for _, part in ipairs(char:GetDescendants()) do
@@ -396,10 +400,11 @@ local function stopNoclip()
     end
     local char = LP.Character
     if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
     local root = char:FindFirstChild("HumanoidRootPart")
     if not root then return end
+
     local posAtual = root.CFrame
-    task.wait()
     for _, part in ipairs(char:GetDescendants()) do
         if part:IsA("BasePart") and not part.Anchored then
             part.CanCollide = true
@@ -407,12 +412,15 @@ local function stopNoclip()
             part.AssemblyAngularVelocity = Vector3.zero
         end
     end
-    task.wait()
+
+    task.wait(0.15)
+    if humanoid then
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+    end
     if root and root.Parent then
         root.CFrame = posAtual
     end
 end
-
 local function startFly()
     local char = LP.Character
     if not char then return end
