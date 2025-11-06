@@ -16,7 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 --Criando Interface
 local Window = OrionLib:MakeWindow({
-    Name = "War HUB",
+    Name = "HAKAI WAR",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "OrionTest",
