@@ -358,7 +358,7 @@ local function notify(title, text)
     OrionLib:MakeNotification({
         Name = title,
         Content = text,
-        Image = "rbxassetid://4483345998", 
+        Image = "rbxassetid://4483345998",
         Time = 2
     })
 end
@@ -412,7 +412,6 @@ local function restoreCharacter()
 
     FLYING = false
     noclipAtivo = false
-    if root then root.Velocity = Vector3.new(0, -5, 0) end
 end
 
 local function toggleNoclip(state)
@@ -434,13 +433,23 @@ local function toggleNoclip(state)
         noclipConnection = RunService.Stepped:Connect(function()
             local char = player.Character
             if not char then return end
+            local root = char:FindFirstChild("HumanoidRootPart")
+            if not root then return end
+
             local feet = getFeetParts(char)
+            local rayOrigin = root.Position
+            local rayDirection = Vector3.new(0, -4, 0)
+            local raycastParams = RaycastParams.new()
+            raycastParams.FilterDescendantsInstances = {char}
+            raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+            local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+            local isGrounded = result and result.Instance
 
             for _, part in pairs(char:GetDescendants()) do
                 if part:IsA("BasePart") then
                     local isFoot = table.find(feet, part)
-                    -- Mantém apenas os pés colidindo com o chão
-                    if isFoot then
+                    if isFoot and isGrounded then
                         part.CanCollide = true
                     else
                         part.CanCollide = false
@@ -503,10 +512,18 @@ local function toggleFly(state)
 
             if noclipAtivo then
                 local feet = getFeetParts(char)
+                local rayOrigin = root.Position
+                local rayDirection = Vector3.new(0, -4, 0)
+                local raycastParams = RaycastParams.new()
+                raycastParams.FilterDescendantsInstances = {char}
+                raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+                local isGrounded = result and result.Instance
+
                 for _, part in pairs(char:GetDescendants()) do
                     if part:IsA("BasePart") then
                         local isFoot = table.find(feet, part)
-                        if isFoot then
+                        if isFoot and isGrounded then
                             part.CanCollide = true
                         else
                             part.CanCollide = false
