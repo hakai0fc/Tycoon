@@ -274,6 +274,13 @@ InfiniteYieldTab:AddButton({
     end
 })
 InfiniteYieldTab:AddButton({
+    Name = "AimBot2",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/Aim2/refs/heads/main/Bot"))()
+    end
+})
+
+InfiniteYieldTab:AddButton({
     Name = "AMMO HACK",
     Callback = function()
         local player = game.Players.LocalPlayer
