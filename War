@@ -16,7 +16,6 @@ pcall(function()
 end)
 
 
---Criando Interface
 local Window = OrionLib:MakeWindow({
     Name = "HAKAI WAR",
     HidePremium = false,
