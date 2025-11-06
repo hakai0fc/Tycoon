@@ -371,6 +371,7 @@ local function restoreCharacter()
     for _, part in pairs(char:GetDescendants()) do
         if part:IsA("BasePart") then
             part.CanCollide = true
+            part.Anchored = false
         end
     end
 
@@ -382,8 +383,8 @@ local function getFeetParts(char)
     local feet = {}
     for _, part in pairs(char:GetChildren()) do
         if part:IsA("BasePart") then
-            local lname = part.Name:lower()
-            if lname:find("foot") or lname:find("leg") then
+            local name = part.Name:lower()
+            if name:find("foot") or name:find("leg") then
                 table.insert(feet, part)
             end
         end
@@ -394,26 +395,27 @@ end
 local function toggleNoclip(state)
     local char = player.Character
     if not char then return end
-
-    noclipAtivo = state
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
 
     if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
+    noclipAtivo = state
 
     if noclipAtivo then
-        noclipConnection = RunService.Stepped:Connect(function()
-            if not char.Parent then return end
-            local feet = getFeetParts(char)
+        originalWalkSpeed = humanoid.WalkSpeed
+        originalJumpPower = humanoid.JumpPower
 
+        noclipConnection = RunService.Stepped:Connect(function()
+            if not char then return end
+            local feet = getFeetParts(char)
             for _, part in pairs(char:GetDescendants()) do
                 if part:IsA("BasePart") then
                     local isFoot = table.find(feet, part)
                     if isFoot then
-                        local rayOrigin = part.Position
-                        local rayDirection = Vector3.new(0, -5, 0)
                         local rayParams = RaycastParams.new()
                         rayParams.FilterDescendantsInstances = {char}
                         rayParams.FilterType = Enum.RaycastFilterType.Blacklist
-                        local result = workspace:Raycast(rayOrigin, rayDirection, rayParams)
+                        local result = workspace:Raycast(part.Position, Vector3.new(0, -5, 0), rayParams)
                         part.CanCollide = result and true or false
                     else
                         part.CanCollide = false
@@ -421,12 +423,21 @@ local function toggleNoclip(state)
                 end
             end
         end)
+
+        OrionLib:MakeNotification({
+            Name = "Noclip",
+            Content = "✅ Noclip ativado!",
+            Image = "rbxassetid://4483345998",
+            Time = 2
+        })
     else
-        for _, part in pairs(char:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = true
-            end
-        end
+        restoreCharacter()
+        OrionLib:MakeNotification({
+            Name = "Noclip",
+            Content = "❌ Noclip desativado!",
+            Image = "rbxassetid://4483345998",
+            Time = 2
+        })
     end
 end
 
@@ -476,32 +487,26 @@ local function toggleFly(state)
 
             BV.Velocity = moveVector.Magnitude > 0 and moveVector.Unit * flySpeed or Vector3.new(0,0,0)
             BG.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
-
-            if noclipAtivo then
-                local feet = getFeetParts(char)
-                for _, part in pairs(char:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        local isFoot = table.find(feet, part)
-                        if isFoot then
-                            local rayOrigin = part.Position
-                            local rayDirection = Vector3.new(0, -5, 0)
-                            local rayParams = RaycastParams.new()
-                            rayParams.FilterDescendantsInstances = {char}
-                            rayParams.FilterType = Enum.RaycastFilterType.Blacklist
-                            local result = workspace:Raycast(rayOrigin, rayDirection, rayParams)
-                            part.CanCollide = result and true or false
-                        else
-                            part.CanCollide = false
-                        end
-                    end
-                end
-            end
         end)
+
+        OrionLib:MakeNotification({
+            Name = "Fly",
+            Content = "✅ Fly ativado!",
+            Image = "rbxassetid://4483345998",
+            Time = 2
+        })
     else
         restoreCharacter()
+        OrionLib:MakeNotification({
+            Name = "Fly",
+            Content = "❌ Fly desativado!",
+            Image = "rbxassetid://4483345998",
+            Time = 2
+        })
     end
 end
 
+-- Conectar aos toggles da GUI
 FuncoesEspeciaisTab:AddToggle({Name = "Noclip", Default = false, Save = false, Callback = toggleNoclip})
 FuncoesEspeciaisTab:AddToggle({Name = "Fly", Default = false, Save = false, Callback = toggleFly})
 FuncoesEspeciaisTab:AddSlider({
@@ -520,5 +525,4 @@ player.CharacterAdded:Connect(function()
     if noclipAtivo then toggleNoclip(true) end
     if flyAtivo then toggleFly(true) end
 end)
-
 OrionLib:Init()
