@@ -495,7 +495,7 @@ FuncoesEspeciaisTab:AddSlider({Name="Velocidade Fly", Min=1, Max=2500, Default=5
 LP.CharacterAdded:Connect(function(char)
     task.wait(0.5)
     resetFlyProperties()
-    
+
     if flyAtivo then
         startFly()
         OrionLib:MakeNotification({
