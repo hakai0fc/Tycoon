@@ -15,7 +15,7 @@ pcall(function()
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR💀",
+    Name = "HAKAI WAR",
     HidePremium = false,
     SaveConfig = true,           
     ConfigFolder = "OrionTest",  
@@ -198,7 +198,6 @@ local function safeRestoreHumanoid(humanoid)
         pcall(function()
             humanoid.PlatformStand = false
             humanoid.AutoRotate = true
-            humanoid:ChangeState(Enum.HumanoidStateType.Physics)
         end)
     end
 end
@@ -265,16 +264,12 @@ local function stopNoclip()
     if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
     local char = LP.Character
     if char then
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        local root = char:FindFirstChild("HumanoidRootPart")
-        if humanoid and root then
-            for _, part in ipairs(char:GetDescendants()) do
-                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
-                    part.CanCollide = true
-                end
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
+                part.CanCollide = true
             end
-            safeRestoreHumanoid(humanoid)
         end
+        safeRestoreHumanoid(char:FindFirstChildOfClass("Humanoid"))
     end
 end
 
@@ -324,10 +319,20 @@ FuncoesEspeciaisTab:AddToggle({
         noclipAtivo = state
         if state then
             if LP.Character then startNoclip(LP.Character) end
-            OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({
+                Name = "Noclip",
+                Content = "✅ Noclip ativado!",
+                Image = "rbxassetid://4483345998",
+                Time = 2
+            })
         else
             stopNoclip()
-            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({
+                Name = "Noclip",
+                Content = "❌ Noclip desativado!",
+                Image = "rbxassetid://4483345998",
+                Time = 2
+            })
         end
     end
 })
@@ -341,10 +346,20 @@ FuncoesEspeciaisTab:AddToggle({
         flyAtivo = state
         if state then
             if LP.Character then startFly(LP.Character) end
-            OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({
+                Name = "Fly",
+                Content = "✅ Fly ativado!",
+                Image = "rbxassetid://4483345998",
+                Time = 2
+            })
         else
             safeStopFly()
-            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({
+                Name = "Fly",
+                Content = "❌ Fly desativado!",
+                Image = "rbxassetid://4483345998",
+                Time = 2
+            })
         end
     end
 })
@@ -354,7 +369,7 @@ FuncoesEspeciaisTab:AddSlider({
     Min = 0,
     Max = 2500,
     Default = 50,
-    Color = Color3.fromRGB(255,255,255),
+    Color = Color3.fromRGB(255, 255, 255),
     Increment = 1,
     ValueName = "Fly Speed",
     Callback = function(Value)
@@ -364,4 +379,4 @@ FuncoesEspeciaisTab:AddSlider({
 
 pcall(function()
     OrionLib:Init()
-end)
+end) 
