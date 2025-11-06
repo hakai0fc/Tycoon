@@ -16,7 +16,7 @@ pcall(function()
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR",
+    Name = "HAKAI WAR💀",
     HidePremium = false,
     SaveConfig = true,           
     ConfigFolder = "OrionTest",  
@@ -182,6 +182,7 @@ flyAtivo = false
 flySpeed = 50
 noclipAtivo = false
 flyWasActiveBeforeDeath = false
+noclipWasActiveBeforeDeath = false  -- Nova variável para rastrear se noclip estava ativo antes da morte
 
 local flyConnection, noclipConnection
 local BG, BV
@@ -214,7 +215,7 @@ local function startNoclip(char)
     end)
 end
 
-local function stopNoclip()
+local function stopNoclip(restorePhysics)
     if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
     local char = LP.Character
     if char then
@@ -223,7 +224,9 @@ local function stopNoclip()
                 part.CanCollide = true
             end
         end
-        restoreCharacterPhysics()
+        if restorePhysics then
+            restoreCharacterPhysics()
+        end
     end
 end
 
@@ -269,9 +272,6 @@ local function onCharacter(char)
     char:WaitForChild("HumanoidRootPart")
     noclipAtivo = false
     flyAtivo = false
-    flyWasActiveBeforeDeath = false
-    if noclipAtivo then startNoclip(char) end
-    if flyWasActiveBeforeDeath then startFly(char) end
     local humanoid = char:WaitForChild("Humanoid")
     humanoid.Died:Connect(function()
         if flyAtivo then
@@ -280,7 +280,26 @@ local function onCharacter(char)
             safeStopFly()
             OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado (você morreu)",Image="rbxassetid://4483345998",Time=2})
         end
+        if noclipAtivo then
+            noclipWasActiveBeforeDeath = true
+            noclipAtivo = false
+            stopNoclip(true)  -- Restaura física na morte
+            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado (você morreu)",Image="rbxassetid://4483345998",Time=2})
+        end
     end)
+    -- Reativar se estavam ativos antes da morte
+    if flyWasActiveBeforeDeath then
+        flyAtivo = true
+        startFly(char)
+        OrionLib:MakeNotification({Name="Fly",Content="✅ Fly reativado (renascimento)",Image="rbxassetid://4483345998",Time=2})
+        flyWasActiveBeforeDeath = false
+    end
+    if noclipWasActiveBeforeDeath then
+        noclipAtivo = true
+        startNoclip(char)
+        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip reativado (renascimento)",Image="rbxassetid://4483345998",Time=2})
+        noclipWasActiveBeforeDeath = false
+    end
 end
 
 LP.CharacterAdded:Connect(onCharacter)
@@ -294,7 +313,7 @@ FuncoesEspeciaisTab:AddToggle({Name="Noclip",Default=false,Save=false,Flag="nocl
         if LP.Character then startNoclip(LP.Character) end
         OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
     else
-        stopNoclip()
+        stopNoclip(false)  -- Não restaura física ao desativar manualmente, mantém posição exata
         OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
     end
 end})
