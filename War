@@ -358,14 +358,10 @@ local function fullReset()
 	local humanoid = char:FindFirstChildOfClass("Humanoid")
 	local root = char:FindFirstChild("HumanoidRootPart")
 	if not humanoid or not root then return end
-	for _,obj in pairs(root:GetChildren()) do
-		if obj:IsA("BodyGyro") or obj:IsA("BodyVelocity") or obj:IsA("AlignPosition") or obj:IsA("AlignOrientation") then
-			obj:Destroy()
-		end
-	end
+	if BG then BG:Destroy() BG = nil end
+	if BV then BV:Destroy() BV = nil end
 	humanoid.PlatformStand = false
 	humanoid.AutoRotate = true
-	humanoid:ChangeState(Enum.HumanoidStateType.Landed)
 	humanoid.WalkSpeed = 16
 	humanoid.JumpPower = 50
 	for _,p in pairs(char:GetDescendants()) do
@@ -379,12 +375,11 @@ local function fullReset()
 		task.wait(0.05)
 		animate.Disabled = false
 	end
-	task.wait(0.05)
 	humanoid:ChangeState(Enum.HumanoidStateType.Running)
 end
 
 local function safeRestore()
-	if not flyAtivo and not noclipAtivo then
+	if not flyAtivo then
 		fullReset()
 	end
 end
@@ -394,8 +389,8 @@ local function startNoclip()
 	if not char then return end
 	noclipConnection = RunService.Stepped:Connect(function()
 		for _, part in pairs(char:GetDescendants()) do
-			if part:IsA("BasePart") then
-				part.CanCollide = false
+			if part:IsA("BasePart") and not part.Anchored then
+				part.CanCollide = part.Position.Y <= workspace.FallenPartsDestroyHeight + 500
 			end
 		end
 	end)
@@ -403,6 +398,11 @@ end
 
 local function stopNoclip()
 	if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
+	for _, part in pairs(player.Character:GetDescendants()) do
+		if part:IsA("BasePart") then
+			part.CanCollide = true
+		end
+	end
 end
 
 local function toggleNoclip(state)
@@ -459,6 +459,7 @@ local function stopFly()
 	if flyConnection then flyConnection:Disconnect() flyConnection = nil end
 	if BG then BG:Destroy() BG = nil end
 	if BV then BV:Destroy() BV = nil end
+	safeRestore()
 end
 
 local function toggleFly(state)
@@ -468,7 +469,6 @@ local function toggleFly(state)
 		startFly()
 		OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
 	else
-		safeRestore()
 		OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
 	end
 end
