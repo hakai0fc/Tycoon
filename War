@@ -504,7 +504,7 @@ FuncoesEspeciaisTab:AddToggle({
 FuncoesEspeciaisTab:AddSlider({
     Name = "Fly Speed",
     Min = 1,
-    Max = 3500,
+    Max = 2500,
     Default = FLY_SPEED,
     Color = Color3.fromRGB(255,255,255),
     Increment = 1,
