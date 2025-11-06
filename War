@@ -199,7 +199,7 @@ local function startNoclip(char)
 end
 
 local function stopNoclip()
-    if noclipConnection then noclipConnection:Disconnect() noclipConnection=nil end
+    if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
     local char = LP.Character
     if char then
         for _, part in ipairs(char:GetDescendants()) do
@@ -211,9 +211,9 @@ local function stopNoclip()
 end
 
 local function safeStopFly()
-    if flyConnection then flyConnection:Disconnect() flyConnection=nil end
-    if BG then BG:Destroy() BG=nil end
-    if BV then BV:Destroy() BV=nil end
+    if flyConnection then flyConnection:Disconnect() flyConnection = nil end
+    if BG then BG:Destroy() BG = nil end
+    if BV then BV:Destroy() BV = nil end
     local char = LP.Character
     if char then
         local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -250,7 +250,7 @@ local function startFly(char)
         if UserInputService:IsKeyDown(Enum.KeyCode.D) then move += cam.CFrame.RightVector end
         if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0,1,0) end
         if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then move -= Vector3.new(0,1,0) end
-        BV.Velocity = move.Magnitude>0 and move.Unit*flySpeed or Vector3.zero
+        BV.Velocity = move.Magnitude > 0 and move.Unit * flySpeed or Vector3.zero
         BG.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
     end)
 end
@@ -267,8 +267,6 @@ LP.CharacterAdded:Connect(function(char)
         startFly(char)
         OrionLib:MakeNotification({Name="Fly", Content="♻️ Fly reativado após renascer!", Image="rbxassetid://4483345998", Time=2})
         flyWasActiveBeforeDeath = false
-    elseif flyAtivo then
-        startFly(char)
     end
     local humanoid = char:WaitForChild("Humanoid")
     humanoid.Died:Connect(function()
