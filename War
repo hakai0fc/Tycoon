@@ -375,11 +375,25 @@ local function restoreCharacter()
         end
     end
 
-    -- força o corpo a cair naturalmente se estiver no ar
+   
     task.defer(function()
         if root and humanoid then
             humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
             root.Velocity = Vector3.new(0, -50, 0)
+        end
+
+       
+        task.wait(0.1)
+        local animate = char:FindFirstChild("Animate")
+        if animate then
+            animate.Disabled = true
+            task.wait(0.05)
+            animate.Disabled = false
+        end
+
+        local animator = humanoid:FindFirstChildOfClass("Animator")
+        if animator then
+            humanoid:ChangeState(Enum.HumanoidStateType.Running)
         end
     end)
 
