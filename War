@@ -435,10 +435,12 @@ local function toggleNoclip(state)
             local char = player.Character
             if not char then return end
             local feet = getFeetParts(char)
+
             for _, part in pairs(char:GetDescendants()) do
                 if part:IsA("BasePart") then
                     local isFoot = table.find(feet, part)
-                    if part.Name == "HumanoidRootPart" or isFoot then
+                    -- Mantém apenas os pés colidindo com o chão
+                    if isFoot then
                         part.CanCollide = true
                     else
                         part.CanCollide = false
@@ -504,7 +506,7 @@ local function toggleFly(state)
                 for _, part in pairs(char:GetDescendants()) do
                     if part:IsA("BasePart") then
                         local isFoot = table.find(feet, part)
-                        if part.Name == "HumanoidRootPart" or isFoot then
+                        if isFoot then
                             part.CanCollide = true
                         else
                             part.CanCollide = false
@@ -517,7 +519,7 @@ local function toggleFly(state)
     else
         restoreCharacter()
         task.wait(0.1)
-        notify("Fly", "❌ Fly desativado e restaurado!")
+        notify("Fly", "❌ Fly desativado!")
     end
 end
 
@@ -553,6 +555,5 @@ player.CharacterAdded:Connect(function()
     if noclipAtivo then toggleNoclip(true) end
     if FLYING then toggleFly(true) end
 end)
-
 
 OrionLib:Init()
