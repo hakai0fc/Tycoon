@@ -54,6 +54,28 @@ HubExclusivoTab:AddButton({
     end
 })
 HubExclusivoTab:AddButton({
+    Name = "TP ARVORE KOTH3",
+    Callback = function()
+        local destino = Vector3.new(-205, 563, -378) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+HubExclusivoTab:AddButton({
+    Name = "TP ARVORE KOTH4",
+    Callback = function()
+        local destino = Vector3.new(-271, 560, -248) 
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+            LP.Character:MoveTo(destino)
+        else
+            warn("Personagem não encontrado ou carregando...")
+        end
+    end
+})
+HubExclusivoTab:AddButton({
     Name = "TP ALPHA",
     Callback = function()
         local destino = Vector3.new(-278, 435, 173) 
