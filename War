@@ -384,13 +384,13 @@ local function resetCharacterProperties()
     if not humanoid or not root then return end
     if BG then BG:Destroy() BG=nil end
     if BV then BV:Destroy() BV=nil end
-    humanoid.PlatformStand = false
-    humanoid.AutoRotate = true
-    humanoid.WalkSpeed = 16
-    humanoid.JumpPower = 50
+    humanoid.PlatformStand=false
+    humanoid.AutoRotate=true
+    humanoid.WalkSpeed=16
+    humanoid.JumpPower=50
     for _, part in pairs(char:GetDescendants()) do
         if part:IsA("BasePart") and not part.Anchored then
-            part.CanCollide = true
+            part.CanCollide=true
         end
     end
 end
@@ -408,7 +408,7 @@ local function startNoclip()
     noclipConnection = RunService.Stepped:Connect(function()
         for _, part in pairs(char:GetDescendants()) do
             if part:IsA("BasePart") and not part.Anchored then
-                part.CanCollide = false
+                part.CanCollide=false
             end
         end
     end)
@@ -420,60 +420,65 @@ local function startFly()
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     local root = char:FindFirstChild("HumanoidRootPart")
     if not humanoid or not root then return end
-    BG = Instance.new("BodyGyro")
-    BG.P = 9e4
-    BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
-    BG.CFrame = root.CFrame
-    BG.Parent = root
-    BV = Instance.new("BodyVelocity")
-    BV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-    BV.Velocity = Vector3.new(0,0,0)
-    BV.Parent = root
-    humanoid.PlatformStand = true
-    humanoid.AutoRotate = false
-    humanoid.WalkSpeed = 0
-    humanoid.JumpPower = 0
-    flyConnection = RunService.RenderStepped:Connect(function()
+    BG=Instance.new("BodyGyro")
+    BG.P=9e4
+    BG.MaxTorque=Vector3.new(9e9,9e9,9e9)
+    BG.CFrame=root.CFrame
+    BG.Parent=root
+    BV=Instance.new("BodyVelocity")
+    BV.MaxForce=Vector3.new(9e9,9e9,9e9)
+    BV.Velocity=Vector3.new(0,0,0)
+    BV.Parent=root
+    humanoid.PlatformStand=true
+    humanoid.AutoRotate=false
+    humanoid.WalkSpeed=0
+    humanoid.JumpPower=0
+    flyConnection=RunService.RenderStepped:Connect(function()
         if not flyAtivo then return end
-        local moveVector = Vector3.new()
-        local cam = workspace.CurrentCamera
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveVector += cam.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveVector -= cam.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveVector -= cam.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveVector += cam.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveVector += Vector3.new(0,1,0) end
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then moveVector -= Vector3.new(0,1,0) end
-        if moveVector.Magnitude > 0 then
-            BV.Velocity = moveVector.Unit * flySpeed
+        local moveVector=Vector3.new()
+        local cam=workspace.CurrentCamera
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveVector+=cam.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveVector-=cam.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveVector-=cam.CFrame.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveVector+=cam.CFrame.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveVector+=Vector3.new(0,1,0) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then moveVector-=Vector3.new(0,1,0) end
+        if moveVector.Magnitude>0 then
+            BV.Velocity=moveVector.Unit*flySpeed
         else
-            BV.Velocity = Vector3.new(0,0,0)
+            BV.Velocity=Vector3.new(0,0,0)
         end
-        BG.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
+        BG.CFrame=CFrame.new(root.Position, root.Position+cam.CFrame.LookVector)
     end)
 end
 
 local function toggleNoclip(state)
-    noclipAtivo = state
-    disconnectConnections()
-    resetCharacterProperties()
+    noclipAtivo=state
+    if not player.Character then return end
+    if noclipConnection then noclipConnection:Disconnect() noclipConnection=nil end
     if noclipAtivo then
-        startNoclip()
-        if flyAtivo then startFly() end
-        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
+        task.defer(function()
+            local char = player.Character
+            local root = char:FindFirstChild("HumanoidRootPart")
+            while not root do task.wait() root = char:FindFirstChild("HumanoidRootPart") end
+            startNoclip()
+            OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
+        end)
     else
-        if flyAtivo then startFly() end
         OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
     end
 end
 
 local function toggleFly(state)
-    flyAtivo = state
+    flyAtivo=state
     disconnectConnections()
     resetCharacterProperties()
     if flyAtivo then
-        task.defer(startFly)
-        if noclipAtivo then startNoclip() end
-        OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
+        task.defer(function()
+            startFly()
+            if noclipAtivo then startNoclip() end
+            OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
+        end)
     else
         if noclipAtivo then startNoclip() end
         OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
@@ -483,6 +488,6 @@ end
 player.CharacterAdded:Connect(function()
     task.wait(0.5)
     resetCharacterProperties()
-    if noclipAtivo then startNoclip() end
     if flyAtivo then task.defer(startFly) end
+    if noclipAtivo then task.defer(startNoclip) end
 end)
