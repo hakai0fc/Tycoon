@@ -4,18 +4,20 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LP = Players.LocalPlayer
 
+local ICON_ID = "rbxassetid://4483345998"
+
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/hakai0fc/Orion/refs/heads/main/BaseHub'))()
 
 pcall(function()
     local VirtualUser = game:GetService('VirtualUser')
     LP.Idled:Connect(function()
         VirtualUser:CaptureController()
-        VirtualUser:ClickButton2(Vector2.new())
+        VirtualUser:ClickButton2(Vector2.new(0,0))
     end)
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR",
+    Name = "HAKAI WAR💀",
     HidePremium = false,
     SaveConfig = true,           
     ConfigFolder = "OrionTest",  
@@ -24,7 +26,7 @@ local Window = OrionLib:MakeWindow({
 
 local HubExclusivoTab = Window:MakeTab({
     Name = "TP BASES",
-    Icon = "rbxassetid://4483345998",
+    Icon = ICON_ID,
     PremiumOnly = false
 })
 HubExclusivoTab:AddSection({ Name = "AUTO-TP" })
@@ -35,8 +37,6 @@ local function createTPButton(tab, name, pos)
         Callback = function()
             if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
                 LP.Character:MoveTo(pos)
-            else
-                warn("Personagem não encontrado ou carregando...")
             end
         end
     })
@@ -55,10 +55,9 @@ createTPButton(HubExclusivoTab, "TP FOXTROT", Vector3.new(83, 435, -700))
 createTPButton(HubExclusivoTab, "TP HOTEL", Vector3.new(233, 435, -338))
 createTPButton(HubExclusivoTab, "TP OMEGA", Vector3.new(76, 435, 43))
 
--- Tab Teleporte Torres
 local TeleportTab = Window:MakeTab({
     Name = "TP TORRE TAB",
-    Icon = "rbxassetid://4483345998",
+    Icon = ICON_ID,
     PremiumOnly = false
 })
 TeleportTab:AddSection({ Name = "TP-TORRE" })
@@ -66,16 +65,15 @@ TeleportTab:AddSection({ Name = "TP-TORRE" })
 createTPButton(TeleportTab, "ALPHA TORRE", Vector3.new(-360, 435, 132))
 createTPButton(TeleportTab, "BRAVO TORRE", Vector3.new(-645, 435, -53))
 createTPButton(TeleportTab, "CHARLIE TORRE", Vector3.new(-532, 435, -706))
-createTPButton(TeleportTab, "DELTA TORRE", Vector3.new(-532, 435, -800)) -- corrigido posição
+createTPButton(TeleportTab, "DELTA TORRE", Vector3.new(-532, 435, -800))
 createTPButton(TeleportTab, "ECHO TORRE", Vector3.new(-191, 435, -774))
 createTPButton(TeleportTab, "FOXTROT TORRE", Vector3.new(108, 435, -611))
 createTPButton(TeleportTab, "HOTEL TORRE", Vector3.new(189, 435, -255))
 createTPButton(TeleportTab, "OMEGA TORRE", Vector3.new(-13, 435, 69))
 
--- Funções Adicionais
 local InfiniteYieldTab = Window:MakeTab({
     Name = "FUNÇÕES A+",
-    Icon = "rbxassetid://4483345998",
+    Icon = ICON_ID,
     PremiumOnly = false
 })
 InfiniteYieldTab:AddSection({ Name = "FUNÇÕES ADICIONAIS" })
@@ -97,7 +95,6 @@ InfiniteYieldTab:AddButton({
     Callback = function()
         local player = LP
         if not player then return end
-
         local function hackRepValues(repValues)
             local function updateValue(valueName)
                 local value = repValues:FindFirstChild(valueName)
@@ -114,7 +111,6 @@ InfiniteYieldTab:AddButton({
             updateValue("Mag")
             updateValue("StoredAmmo")
         end
-
         local function hackTool(tool)
             if tool:IsA("Tool") then
                 local repValues = tool:FindFirstChild("RepValues")
@@ -129,26 +125,22 @@ InfiniteYieldTab:AddButton({
                 end
             end
         end
-
         for _, tool in ipairs(player.Backpack:GetChildren()) do
             hackTool(tool)
         end
-
         if player.Character then
             for _, tool in ipairs(player.Character:GetChildren()) do
                 hackTool(tool)
             end
         end
-
         player.Backpack.ChildAdded:Connect(hackTool)
         if player.Character then
             player.Character.ChildAdded:Connect(hackTool)
         end
-
         OrionLib:MakeNotification({
             Name = "Ammo Hack",
             Content = "✅ Munição infinita em todas armas!",
-            Image = "rbxassetid://4483345998",
+            Image = ICON_ID,
             Time = 2
         })
     end
@@ -174,22 +166,16 @@ InfiniteYieldTab:AddButton({
 
 local FuncoesEspeciaisTab = Window:MakeTab({
     Name = "FUNÇÕES OP",
-    Icon = "rbxassetid://4483345998",
+    Icon = ICON_ID,
     PremiumOnly = false
 })
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local LP = Players.LocalPlayer
 
 local flyAtivo = false
 local flySpeed = 50
 local noclipAtivo = false
 local flyWasActiveBeforeDeath = false
 local noclipWasActiveBeforeDeath = false
-
 local flyConnection, noclipConnection
 local BG, BV
 
@@ -217,32 +203,28 @@ local function startFly(char)
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     local root = char:FindFirstChild("HumanoidRootPart")
     if not humanoid or not root then return end
-
     BG = Instance.new("BodyGyro")
     BV = Instance.new("BodyVelocity")
     BG.MaxTorque = Vector3.new(9e9,9e9,9e9)
     BG.P = 9e4
     BG.CFrame = root.CFrame
     BG.Parent = root
-
     BV.MaxForce = Vector3.new(9e9,9e9,9e9)
-    BV.Velocity = Vector3.zero
+    BV.Velocity = Vector3.new(0,0,0)
     BV.Parent = root
-
     humanoid.PlatformStand = true
     humanoid.AutoRotate = false
-
     flyConnection = RunService.RenderStepped:Connect(function()
         if not flyAtivo or not root.Parent then return end
         local cam = workspace.CurrentCamera
-        local move = Vector3.zero
+        local move = Vector3.new(0,0,0)
         if UserInputService:IsKeyDown(Enum.KeyCode.W) then move += cam.CFrame.LookVector end
         if UserInputService:IsKeyDown(Enum.KeyCode.S) then move -= cam.CFrame.LookVector end
         if UserInputService:IsKeyDown(Enum.KeyCode.A) then move -= cam.CFrame.RightVector end
         if UserInputService:IsKeyDown(Enum.KeyCode.D) then move += cam.CFrame.RightVector end
         if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0,1,0) end
         if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then move -= Vector3.new(0,1,0) end
-        BV.Velocity = move.Magnitude>0 and move.Unit*flySpeed or Vector3.zero
+        BV.Velocity = move.Magnitude>0 and move.Unit*flySpeed or Vector3.new(0,0,0)
         BG.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
     end)
 end
@@ -261,7 +243,7 @@ end
 
 local function stopNoclip()
     noclipAtivo = false
-    if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
+    if noclipConnection then noclipConnection:Disconnect() noclipConnection=nil end
     local char = LP.Character
     if char then
         for _, part in ipairs(char:GetDescendants()) do
@@ -281,27 +263,26 @@ local function onCharacter(char)
             flyWasActiveBeforeDeath = true
             flyAtivo = false
             safeStopFly()
-            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado! (você morreu!)",Image=ICON_ID,Time=2})
         end
         if noclipAtivo then
             noclipWasActiveBeforeDeath = true
             stopNoclip()
-            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado! (você morreu!)",Image=ICON_ID,Time=2})
         end
     end)
-
-    wait(0.1)
+    task.wait(0.1)
     if flyWasActiveBeforeDeath then
         flyAtivo = true
         startFly(char)
-        OrionLib:MakeNotification({Name="Fly",Content="✅ Fly reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
-        flyWasActiveBeforeDeath = false
+        OrionLib:MakeNotification({Name="Fly",Content="✅ Fly reativado! (Você Reespawnou!)",Image=ICON_ID,Time=2})
+        flyWasActiveBeforeDeath=false
     end
     if noclipWasActiveBeforeDeath then
         noclipAtivo = true
         startNoclip(char)
-        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
-        noclipWasActiveBeforeDeath = false
+        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip reativado! (Você Reespawnou!)",Image=ICON_ID,Time=2})
+        noclipWasActiveBeforeDeath=false
     end
 end
 
@@ -319,20 +300,10 @@ FuncoesEspeciaisTab:AddToggle({
         noclipAtivo = state
         if state then
             if LP.Character then startNoclip(LP.Character) end
-            OrionLib:MakeNotification({
-                Name = "Noclip",
-                Content = "✅ Noclip ativado!",
-                Image = "rbxassetid://4483345998",
-                Time = 2
-            })
+            OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image=ICON_ID,Time=2})
         else
             stopNoclip()
-            OrionLib:MakeNotification({
-                Name = "Noclip",
-                Content = "❌ Noclip desativado!",
-                Image = "rbxassetid://4483345998",
-                Time = 2
-            })
+            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image=ICON_ID,Time=2})
         end
     end
 })
@@ -346,20 +317,10 @@ FuncoesEspeciaisTab:AddToggle({
         flyAtivo = state
         if state then
             if LP.Character then startFly(LP.Character) end
-            OrionLib:MakeNotification({
-                Name = "Fly",
-                Content = "✅ Fly ativado!",
-                Image = "rbxassetid://4483345998",
-                Time = 2
-            })
+            OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image=ICON_ID,Time=2})
         else
             safeStopFly()
-            OrionLib:MakeNotification({
-                Name = "Fly",
-                Content = "❌ Fly desativado!",
-                Image = "rbxassetid://4483345998",
-                Time = 2
-            })
+            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image=ICON_ID,Time=2})
         end
     end
 })
@@ -379,4 +340,4 @@ FuncoesEspeciaisTab:AddSlider({
 
 pcall(function()
     OrionLib:Init()
-end) 
+end)
