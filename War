@@ -463,6 +463,12 @@ FuncoesEspeciaisTab:AddSlider({Name="Fly Speed",Min=1,Max=2500,Default=50,Increm
 player.CharacterAdded:Connect(function()
 	task.wait(0.5)
 	resetCharacterProperties()
-	if noclipAtivo then startNoclip() OrionLib:MakeNotification({Name="Noclip",Content="♻️ Noclip reativado após respawn",Image="rbxassetid://4483345998",Time=2}) end
-	if flyAtivo then startFly() OrionLib:MakeNotification({Name="Fly",Content="♻️ Fly reativado após respawn",Image="rbxassetid://4483345998",Time=2}) end
-end))
+	if noclipAtivo then 
+		startNoclip() 
+		OrionLib:MakeNotification({Name="Noclip",Content="♻️ Noclip reativado após respawn",Image="rbxassetid://4483345998",Time=2}) 
+	end
+	if flyAtivo then 
+		startFly() 
+		OrionLib:MakeNotification({Name="Fly",Content="♻️ Fly reativado após respawn",Image="rbxassetid://4483345998",Time=2}) 
+	end
+end)
