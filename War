@@ -300,7 +300,6 @@ LP.CharacterAdded:Connect(function(char)
         end
     end)
 end)
-
 FuncoesEspeciaisTab:AddToggle({
     Name = "Noclip",
     Default = false,
@@ -318,14 +317,16 @@ FuncoesEspeciaisTab:AddToggle({
 })
 
 FuncoesEspeciaisTab:AddSlider({
-    Name = "Velocidade Fly",
+    Name = "Fly Speed",
     Min = 1,
     Max = 2500,
     Default = 50,
     Color = Color3.fromRGB(255,255,255),
     Save = true,
     Flag = "flySpeed",
-    Callback = function(v) flySpeed = v end
+    Callback = function(v)
+        flySpeed = v
+    end
 })
 
 OrionLib:Init()
