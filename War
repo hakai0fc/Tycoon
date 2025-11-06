@@ -363,88 +363,22 @@ local function notify(title, text)
     })
 end
 
-local function restoreCharacter()
-    local char = player.Character
-    if not char then return end
-
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    local root = char:FindFirstChild("HumanoidRootPart")
-
-    -- Remove qualquer força residual
-    if root then
-        for _, obj in pairs(root:GetChildren()) do
-            if obj:IsA("BodyGyro") or obj:IsA("BodyVelocity") then
-                obj:Destroy()
-            end
-        end
-    end
-
-    if humanoid then
-        humanoid.PlatformStand = false
-        humanoid.Sit = false
-        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-        humanoid.WalkSpeed = originalWalkSpeed
-        humanoid.JumpPower = originalJumpPower
-    end
-
-    for _, part in pairs(char:GetDescendants()) do
+local function getFeetParts(char)
+    local feet = {}
+    for _, part in pairs(char:GetChildren()) do
         if part:IsA("BasePart") then
-            part.CanCollide = true
-            part.Anchored = false
+            local name = part.Name:lower()
+            if name:find("foot") or name:find("leg") then
+                table.insert(feet, part)
+            end
         end
     end
-
-    -- Destroi objetos de controle residuais
-    if BG then BG:Destroy() BG = nil end
-    if BV then BV:Destroy() BV = nil end
-
-    FLYING = false
-    noclipAtivo = false
-    task.wait(0.05)
-
-    if root then
-        root.Velocity = Vector3.new(0, -5, 0)
-    end
-end
-
-local function toggleNoclip(state)
-    local char = player.Character
-    if not char then return end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if not humanoid then return end
-
-    if noclipConnection then
-        noclipConnection:Disconnect()
-        noclipConnection = nil
-    end
-
-    noclipAtivo = state
-
-    if noclipAtivo then
-        originalWalkSpeed = humanoid.WalkSpeed
-        originalJumpPower = humanoid.JumpPower
-
-        noclipConnection = RunService.Stepped:Connect(function()
-            local char = player.Character
-            if not char then return end
-            for _, part in pairs(char:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
-            end
-        end)
-        notify("Noclip", "✅ Noclip ativado!")
-    else
-        restoreCharacter()
-        notify("Noclip", "❌ Noclip desativado!")
-    end
+    return feet
 end
 
 local function restoreCharacter()
     local char = player.Character
     if not char then return end
-
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     local root = char:FindFirstChild("HumanoidRootPart")
 
@@ -460,7 +394,7 @@ local function restoreCharacter()
         humanoid.PlatformStand = false
         humanoid.Sit = false
         humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-        task.wait(0.1)
+        task.wait(0.05)
         humanoid:ChangeState(Enum.HumanoidStateType.Running)
         humanoid.WalkSpeed = originalWalkSpeed
         humanoid.JumpPower = originalJumpPower
@@ -475,10 +409,47 @@ local function restoreCharacter()
 
     if BG then BG:Destroy() BG = nil end
     if BV then BV:Destroy() BV = nil end
-    FLYING = false
 
-    if root then
-        root.Velocity = Vector3.new(0, 25, 0)
+    FLYING = false
+    noclipAtivo = false
+    if root then root.Velocity = Vector3.new(0, -5, 0) end
+end
+
+local function toggleNoclip(state)
+    local char = player.Character
+    if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+
+    if noclipConnection then
+        noclipConnection:Disconnect()
+        noclipConnection = nil
+    end
+
+    noclipAtivo = state
+    if noclipAtivo then
+        originalWalkSpeed = humanoid.WalkSpeed
+        originalJumpPower = humanoid.JumpPower
+
+        noclipConnection = RunService.Stepped:Connect(function()
+            local char = player.Character
+            if not char then return end
+            local feet = getFeetParts(char)
+            for _, part in pairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    local isFoot = table.find(feet, part)
+                    if part.Name == "HumanoidRootPart" or isFoot then
+                        part.CanCollide = true
+                    else
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end)
+        notify("Noclip", "✅ Noclip ativado!")
+    else
+        restoreCharacter()
+        notify("Noclip", "❌ Noclip desativado!")
     end
 end
 
@@ -489,15 +460,11 @@ local function toggleFly(state)
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     if not root or not humanoid then return end
 
-    if flyConnection then
-        flyConnection:Disconnect()
-        flyConnection = nil
-    end
+    if flyConnection then flyConnection:Disconnect() flyConnection = nil end
     if BG then BG:Destroy() BG = nil end
     if BV then BV:Destroy() BV = nil end
 
     FLYING = state
-
     if FLYING then
         originalWalkSpeed = humanoid.WalkSpeed
         originalJumpPower = humanoid.JumpPower
@@ -519,7 +486,6 @@ local function toggleFly(state)
 
         flyConnection = RunService.RenderStepped:Connect(function()
             if not FLYING then return end
-
             local moveVector = Vector3.new()
             local camera = workspace.CurrentCamera
 
@@ -534,9 +500,15 @@ local function toggleFly(state)
             BG.CFrame = CFrame.new(root.Position, root.Position + camera.CFrame.LookVector)
 
             if noclipAtivo then
+                local feet = getFeetParts(char)
                 for _, part in pairs(char:GetDescendants()) do
-                    if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                        part.CanCollide = false
+                    if part:IsA("BasePart") then
+                        local isFoot = table.find(feet, part)
+                        if part.Name == "HumanoidRootPart" or isFoot then
+                            part.CanCollide = true
+                        else
+                            part.CanCollide = false
+                        end
                     end
                 end
             end
@@ -544,7 +516,7 @@ local function toggleFly(state)
         notify("Fly", "✅ Fly ativado!")
     else
         restoreCharacter()
-        task.wait(0.15)
+        task.wait(0.1)
         notify("Fly", "❌ Fly desativado e restaurado!")
     end
 end
@@ -581,4 +553,6 @@ player.CharacterAdded:Connect(function()
     if noclipAtivo then toggleNoclip(true) end
     if FLYING then toggleFly(true) end
 end)
+
+
 OrionLib:Init()
