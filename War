@@ -360,21 +360,30 @@ local function restoreCharacter()
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     local root = char:FindFirstChild("HumanoidRootPart")
     if not humanoid or not root then return end
+
     if BG then BG:Destroy() BG = nil end
     if BV then BV:Destroy() BV = nil end
     if flyConnection then flyConnection:Disconnect() flyConnection = nil end
-    if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
+
     humanoid.PlatformStand = false
     humanoid.WalkSpeed = originalWalkSpeed
     humanoid.JumpPower = originalJumpPower
+
     for _, part in pairs(char:GetDescendants()) do
-        if part:IsA("BasePart") then
+        if part:IsA("BasePart") and not part.Anchored then
             part.CanCollide = true
-            part.Anchored = false
         end
     end
+
+    -- força o corpo a cair naturalmente se estiver no ar
+    task.defer(function()
+        if root and humanoid then
+            humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
+            root.Velocity = Vector3.new(0, -50, 0)
+        end
+    end)
+
     flyAtivo = false
-    noclipAtivo = false
 end
 
 local function toggleNoclip(state)
@@ -414,7 +423,6 @@ local function toggleNoclip(state)
             Image = "rbxassetid://4483345998",
             Time = 2
         })
-        -- 🔄 Força o Humanoid a atualizar sem resetar animações
         local humanoid = char:FindFirstChildOfClass("Humanoid")
         if humanoid then
             humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
@@ -428,13 +436,16 @@ local function toggleFly(state)
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     local root = char:FindFirstChild("HumanoidRootPart")
     if not humanoid or not root then return end
+
     if flyConnection then
         flyConnection:Disconnect()
         flyConnection = nil
     end
     if BG then BG:Destroy() BG = nil end
     if BV then BV:Destroy() BV = nil end
+
     flyAtivo = state
+
     if flyAtivo then
         originalWalkSpeed = humanoid.WalkSpeed
         originalJumpPower = humanoid.JumpPower
@@ -443,26 +454,32 @@ local function toggleFly(state)
         BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
         BG.CFrame = root.CFrame
         BG.Parent = root
+
         BV = Instance.new("BodyVelocity")
         BV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
         BV.Velocity = Vector3.zero
         BV.Parent = root
+
         humanoid.PlatformStand = true
         humanoid.WalkSpeed = 0
         humanoid.JumpPower = 0
+
         flyConnection = RunService.RenderStepped:Connect(function()
             if not flyAtivo then return end
             local moveVector = Vector3.zero
             local cam = workspace.CurrentCamera
+
             if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveVector += cam.CFrame.LookVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveVector -= cam.CFrame.LookVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveVector -= cam.CFrame.RightVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveVector += cam.CFrame.RightVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveVector += Vector3.new(0, 1, 0) end
             if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then moveVector -= Vector3.new(0, 1, 0) end
+
             BV.Velocity = moveVector.Magnitude > 0 and moveVector.Unit * flySpeed or Vector3.zero
             BG.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
         end)
+
         OrionLib:MakeNotification({
             Name = "Fly",
             Content = "✅ Fly ativado!",
@@ -471,6 +488,12 @@ local function toggleFly(state)
         })
     else
         restoreCharacter()
+        if not noclipAtivo then
+            local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
+            end
+        end
         OrionLib:MakeNotification({
             Name = "Fly",
             Content = "❌ Fly desativado!",
@@ -511,5 +534,3 @@ FuncoesEspeciaisTab:AddSlider({
     Color = Color3.fromRGB(255,255,255),
     Callback = setFlySpeed
 })
-
-OrionLib:Init()
