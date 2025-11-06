@@ -16,7 +16,7 @@ pcall(function()
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR💀",
+    Name = "HAKAI WAR",
     HidePremium = false,
     SaveConfig = true,           
     ConfigFolder = "OrionTest",  
@@ -178,13 +178,29 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 })
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
-local flyAtivo = false
-local flySpeed = 50
-local noclipAtivo = false
-local flyWasActiveBeforeDeath = false
+flyAtivo = false
+flySpeed = 50
+noclipAtivo = false
+flyWasActiveBeforeDeath = false
 
 local flyConnection, noclipConnection
 local BG, BV
+
+local function restoreCharacterPhysics()
+    local char = LP.Character
+    if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if root then
+        root.Velocity = Vector3.zero
+        root.RotVelocity = Vector3.zero
+    end
+    if humanoid then
+        humanoid.PlatformStand = false
+        humanoid.AutoRotate = true
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+    end
+end
 
 local function startNoclip(char)
     if noclipConnection then noclipConnection:Disconnect() end
@@ -207,27 +223,21 @@ local function stopNoclip()
                 part.CanCollide = true
             end
         end
+        restoreCharacterPhysics()
     end
 end
 
 local function safeStopFly()
-    if flyConnection then flyConnection:Disconnect() flyConnection = nil end
-    if BG then BG:Destroy() BG = nil end
-    if BV then BV:Destroy() BV = nil end
-    local char = LP.Character
-    if char then
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.PlatformStand = false
-            humanoid.AutoRotate = true
-        end
-    end
+    if flyConnection then flyConnection:Disconnect() flyConnection=nil end
+    if BG then BG:Destroy() BG=nil end
+    if BV then BV:Destroy() BV=nil end
+    restoreCharacterPhysics()
 end
 
 local function startFly(char)
     safeStopFly()
     local humanoid = char:FindFirstChildOfClass("Humanoid")
-    local root = char:WaitForChild("HumanoidRootPart")
+    local root = char:FindFirstChild("HumanoidRootPart")
     if not humanoid or not root then return end
     BG = Instance.new("BodyGyro")
     BV = Instance.new("BodyVelocity")
@@ -242,86 +252,64 @@ local function startFly(char)
     humanoid.AutoRotate = false
     flyConnection = RunService.RenderStepped:Connect(function()
         if not flyAtivo then return end
-        local move = Vector3.zero
         local cam = workspace.CurrentCamera
+        local move = Vector3.zero
         if UserInputService:IsKeyDown(Enum.KeyCode.W) then move += cam.CFrame.LookVector end
         if UserInputService:IsKeyDown(Enum.KeyCode.S) then move -= cam.CFrame.LookVector end
         if UserInputService:IsKeyDown(Enum.KeyCode.A) then move -= cam.CFrame.RightVector end
         if UserInputService:IsKeyDown(Enum.KeyCode.D) then move += cam.CFrame.RightVector end
         if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0,1,0) end
         if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then move -= Vector3.new(0,1,0) end
-        BV.Velocity = move.Magnitude > 0 and move.Unit * flySpeed or Vector3.zero
+        BV.Velocity = move.Magnitude>0 and move.Unit*flySpeed or Vector3.zero
         BG.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
     end)
 end
 
-LP.CharacterAdded:Connect(function(char)
+local function onCharacter(char)
     char:WaitForChild("HumanoidRootPart")
-    task.wait(0.5)
-    if noclipAtivo then
-        startNoclip(char)
-        OrionLib:MakeNotification({Name="Noclip", Content="♻️ Noclip reativado após renascer!", Image="rbxassetid://4483345998", Time=2})
-    end
-    if flyWasActiveBeforeDeath then
-        flyAtivo = true
-        startFly(char)
-        OrionLib:MakeNotification({Name="Fly", Content="♻️ Fly reativado após renascer!", Image="rbxassetid://4483345998", Time=2})
-        flyWasActiveBeforeDeath = false
-    end
+    noclipAtivo = false
+    flyAtivo = false
+    flyWasActiveBeforeDeath = false
+    if noclipAtivo then startNoclip(char) end
+    if flyWasActiveBeforeDeath then startFly(char) end
     local humanoid = char:WaitForChild("Humanoid")
     humanoid.Died:Connect(function()
         if flyAtivo then
             flyWasActiveBeforeDeath = true
             flyAtivo = false
             safeStopFly()
-            OrionLib:MakeNotification({Name="Fly", Content="❌ Fly desativado (você morreu)", Image="rbxassetid://4483345998", Time=2})
+            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado (você morreu)",Image="rbxassetid://4483345998",Time=2})
         end
     end)
-end)
+end
 
-FuncoesEspeciaisTab:AddToggle({
-    Name="Noclip",
-    Default=false,
-    Save=true,
-    Flag="noclip",
-    Callback=function(state)
-        noclipAtivo = state
-        if state then
-            if LP.Character then startNoclip(LP.Character) end
-            OrionLib:MakeNotification({Name="Noclip", Content="✅ Noclip ativado!", Image="rbxassetid://4483345998", Time=2})
-        else
-            stopNoclip()
-            OrionLib:MakeNotification({Name="Noclip", Content="❌ Noclip desativado!", Image="rbxassetid://4483345998", Time=2})
-        end
+LP.CharacterAdded:Connect(onCharacter)
+if LP.Character then
+    onCharacter(LP.Character)
+end
+
+FuncoesEspeciaisTab:AddToggle({Name="Noclip",Default=false,Save=false,Flag="noclip",Callback=function(state)
+    noclipAtivo=state
+    if state then
+        if LP.Character then startNoclip(LP.Character) end
+        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
+    else
+        stopNoclip()
+        OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
     end
-})
+end})
 
-FuncoesEspeciaisTab:AddToggle({
-    Name="Fly",
-    Default=false,
-    Save=true,
-    Flag="fly",
-    Callback=function(state)
-        flyAtivo = state
-        if state then
-            if LP.Character then startFly(LP.Character) end
-            OrionLib:MakeNotification({Name="Fly", Content="✅ Fly ativado!", Image="rbxassetid://4483345998", Time=2})
-        else
-            safeStopFly()
-            OrionLib:MakeNotification({Name="Fly", Content="❌ Fly desativado!", Image="rbxassetid://4483345998", Time=2})
-        end
+FuncoesEspeciaisTab:AddToggle({Name="Fly",Default=false,Save=false,Flag="fly",Callback=function(state)
+    flyAtivo=state
+    if state then
+        if LP.Character then startFly(LP.Character) end
+        OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
+    else
+        safeStopFly()
+        OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
     end
-})
+end})
 
-FuncoesEspeciaisTab:AddSlider({
-    Name="Fly Speed",
-    Min=1,
-    Max=2500,
-    Default=50,
-    Color=Color3.fromRGB(255,255,255),
-    Save=true,
-    Flag="flySpeed",
-    Callback=function(v) flySpeed=v end
-})
+FuncoesEspeciaisTab:AddSlider({Name="Fly Speed",Min=1,Max=2500,Default=50,Color=Color3.fromRGB(255,255,255),Save=true,Flag="flySpeed",Callback=function(v) flySpeed=v end})
 
 OrionLib:Init()
