@@ -365,14 +365,6 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LP = Players.LocalPlayer
 
-local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR",
-    HidePremium = false,
-    SaveConfig = true,
-    ConfigFolder = "OrionTest",
-    IntroEnabled = false
-})
-
 local FuncoesEspeciaisTab = Window:MakeTab({
     Name = "FUNÇÕES OP",
     Icon = "rbxassetid://4483345998",
