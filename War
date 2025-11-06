@@ -211,7 +211,21 @@ local function stopNoclip()
     end
 end
 
-local function startFly()
+local function safeStopFly()
+    if flyConnection then flyConnection:Disconnect() flyConnection = nil end
+    if BG then BG:Destroy() BG = nil end
+    if BV then BV:Destroy() BV = nil end
+    local char = LP.Character
+    if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.PlatformStand = false
+        humanoid.AutoRotate = true
+    end
+end
+
+local function safeStartFly()
+    safeStopFly()
     local char = LP.Character
     if not char then return end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -243,19 +257,6 @@ local function startFly()
     end)
 end
 
-local function stopFly()
-    if flyConnection then flyConnection:Disconnect() flyConnection = nil end
-    if BG then BG:Destroy() BG = nil end
-    if BV then BV:Destroy() BV = nil end
-    local char = LP.Character
-    if not char then return end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid.PlatformStand = false
-        humanoid.AutoRotate = true
-    end
-end
-
 local function toggleNoclip(state)
     noclipAtivo = state
     if noclipAtivo then
@@ -270,10 +271,10 @@ end
 local function toggleFly(state)
     flyAtivo = state
     if flyAtivo then
-        startFly()
+        safeStartFly()
         OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
     else
-        stopFly()
+        safeStopFly()
         OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
     end
 end
@@ -287,7 +288,7 @@ LP.CharacterAdded:Connect(function(char)
     end
     if flyWasActiveBeforeDeath then
         flyAtivo = true
-        startFly()
+        safeStartFly()
         OrionLib:MakeNotification({Name="Fly",Content="♻️ Fly reativado após renascer!",Image="rbxassetid://4483345998",Time=2})
         flyWasActiveBeforeDeath = false
     end
@@ -295,38 +296,15 @@ LP.CharacterAdded:Connect(function(char)
         if flyAtivo then
             flyWasActiveBeforeDeath = true
             flyAtivo = false
-            stopFly()
+            safeStopFly()
             OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado! (você morreu)",Image="rbxassetid://4483345998",Time=2})
         end
     end)
 end)
-FuncoesEspeciaisTab:AddToggle({
-    Name = "Noclip",
-    Default = false,
-    Save = true,
-    Flag = "noclip",
-    Callback = toggleNoclip
-})
 
-FuncoesEspeciaisTab:AddToggle({
-    Name = "Fly",
-    Default = false,
-    Save = true,
-    Flag = "fly",
-    Callback = toggleFly
-})
+FuncoesEspeciaisTab:AddToggle({Name="Noclip", Default=false, Save=true, Flag="noclip", Callback=toggleNoclip})
+FuncoesEspeciaisTab:AddToggle({Name="Fly", Default=false, Save=true, Flag="fly", Callback=toggleFly})
+FuncoesEspeciaisTab:AddSlider({Name="Fly Speed", Min=1, Max=2500, Default=50, Color=Color3.fromRGB(255,255,255), Save=true, Flag="flySpeed", Callback=function(v) flySpeed=v end})
 
-FuncoesEspeciaisTab:AddSlider({
-    Name = "Fly Speed",
-    Min = 1,
-    Max = 2500,
-    Default = 50,
-    Color = Color3.fromRGB(255,255,255),
-    Save = true,
-    Flag = "flySpeed",
-    Callback = function(v)
-        flySpeed = v
-    end
-})
 
 OrionLib:Init()
