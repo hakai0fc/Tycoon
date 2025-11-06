@@ -307,9 +307,9 @@ InfiniteYieldTab:AddButton({
 
         OrionLib:MakeNotification({
             Name = "Ammo Hack",
-            Content = "✅ Municao infinita ativa em todas as armas, mesmo sem recarregar!",
+            Content = "✅ Munição infinita em todas armas!",
             Image = "rbxassetid://4483345998",
-            Time = 1
+            Time = 2
         })
     end
 })
