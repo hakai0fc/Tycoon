@@ -340,30 +340,16 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
-local noclipConnection
-local noclipAtivo = false
-local originalHumanoidProperties = {}
-
-local function saveHumanoidProperties(humanoid)
-    originalHumanoidProperties.WalkSpeed = humanoid.WalkSpeed
-    originalHumanoidProperties.JumpPower = humanoid.JumpPower
-    originalHumanoidProperties.PlatformStand = humanoid.PlatformStand
-end
-
-local function restoreHumanoidProperties(humanoid)
-    if originalHumanoidProperties.WalkSpeed then
-        humanoid.WalkSpeed = originalHumanoidProperties.WalkSpeed
-    end
-    if originalHumanoidProperties.JumpPower then
-        humanoid.JumpPower = originalHumanoidProperties.JumpPower
-    end
-    if originalHumanoidProperties.PlatformStand ~= nil then
-        humanoid.PlatformStand = originalHumanoidProperties.PlatformStand
+local function restoreHumanoid(humanoid)
+    humanoid.WalkSpeed = originalWalkSpeed
+    humanoid.JumpPower = originalJumpPower
+    if not FLYING then
+        humanoid.PlatformStand = false
     end
 end
 
 local function toggleNoclip(state)
-    local char = player.Character
+    local char = LP.Character
     local humanoid = char and char:FindFirstChildOfClass("Humanoid")
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
     if not char or not humanoid or not hrp then return end
@@ -376,44 +362,25 @@ local function toggleNoclip(state)
     noclipAtivo = state
 
     if noclipAtivo then
-        OrionLib:MakeNotification({
-            Name = "Noclip",
-            Content = "✅ Noclip ativado!",
-            Image = "rbxassetid://4483345998",
-            Time = 2
-        })
+        OrionLib:MakeNotification({Name = "Noclip", Content = "✅ Ativado!", Image = "rbxassetid://4483345998", Time = 2})
         saveHumanoidProperties(humanoid)
-        humanoid.PlatformStand = true 
+        if not FLYING then
+            humanoid.PlatformStand = true
+        end
 
         noclipConnection = RunService.Stepped:Connect(function()
-            if not noclipAtivo then return end
             for _, part in pairs(char:GetDescendants()) do
                 if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                    -- Desativa CanCollide para atravessar paredes, mas não chão
-                    if part.Position.Y > hrp.Position.Y - 2 then
-                        part.CanCollide = false
-                    else
-                        part.CanCollide = true
-                    end
+                    part.CanCollide = part.Position.Y <= hrp.Position.Y - 2
                 end
             end
         end)
     else
-        OrionLib:MakeNotification({
-            Name = "Noclip",
-            Content = "❌ Noclip desativado!",
-            Image = "rbxassetid://4483345998",
-            Time = 2
-        })
-
+        OrionLib:MakeNotification({Name = "Noclip", Content = "❌ Desativado!", Image = "rbxassetid://4483345998", Time = 2})
         for _, part in pairs(char:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = true
-            end
+            if part:IsA("BasePart") then part.CanCollide = true end
         end
-
-        restoreHumanoidProperties(humanoid)
-        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+        restoreHumanoid(humanoid)
     end
 end
 
@@ -421,16 +388,13 @@ FuncoesEspeciaisTab:AddToggle({
     Name = "Noclip",
     Default = false,
     Save = false,
-    Callback = function(state)
-        toggleNoclip(state)
-    end
+    Callback = toggleNoclip
 })
 
 player.CharacterAdded:Connect(function(char)
-    if noclipAtivo then
-        wait(1)
-        toggleNoclip(true)
-    end
+    wait(1)
+    if noclipAtivo then toggleNoclip(true) end
+    if FLYING then toggleFly(true) end
 end)
 
 local FLYING = false
