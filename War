@@ -366,26 +366,46 @@ end
 local function restoreCharacter()
     local char = player.Character
     if not char then return end
+
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     local root = char:FindFirstChild("HumanoidRootPart")
 
-    if humanoid then
-        humanoid.PlatformStand = false
-        humanoid.WalkSpeed = originalWalkSpeed
-        humanoid.JumpPower = originalJumpPower
-        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-    end
-
+    -- Remove qualquer força residual
     if root then
-        for _, part in pairs(char:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = true
+        for _, obj in pairs(root:GetChildren()) do
+            if obj:IsA("BodyGyro") or obj:IsA("BodyVelocity") then
+                obj:Destroy()
             end
         end
     end
 
+    if humanoid then
+        humanoid.PlatformStand = false
+        humanoid.Sit = false
+        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+        humanoid.WalkSpeed = originalWalkSpeed
+        humanoid.JumpPower = originalJumpPower
+    end
+
+    for _, part in pairs(char:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = true
+            part.Anchored = false
+        end
+    end
+
+    -- Destroi objetos de controle residuais
     if BG then BG:Destroy() BG = nil end
     if BV then BV:Destroy() BV = nil end
+
+    FLYING = false
+    noclipAtivo = false
+    task.wait(0.05)
+
+    if root then
+        root.Velocity = Vector3.new(0, -5, 0)
+    end
 end
 
 local function toggleNoclip(state)
@@ -472,6 +492,7 @@ local function toggleFly(state)
             BV.Velocity = moveVector.Magnitude > 0 and moveVector.Unit * FLY_SPEED or Vector3.new(0,0,0)
             BG.CFrame = CFrame.new(root.Position, root.Position + camera.CFrame.LookVector)
 
+            -- Mantém o noclip ativo durante o fly
             if noclipAtivo then
                 for _, part in pairs(char:GetDescendants()) do
                     if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
@@ -514,14 +535,9 @@ FuncoesEspeciaisTab:AddSlider({
     end
 })
 
-player.CharacterAdded:Connect(function(char)
-    wait(1)
-    if noclipAtivo then
-        toggleNoclip(true)
-    end
-    if FLYING then
-        toggleFly(true)
-    end
+player.CharacterAdded:Connect(function()
+    task.wait(1)
+    if noclipAtivo then toggleNoclip(true) end
+    if FLYING then toggleFly(true) end
 end)
-
 OrionLib:Init()
