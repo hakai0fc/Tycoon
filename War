@@ -193,50 +193,15 @@ local noclipWasActiveBeforeDeath = false
 local flyConnection, noclipConnection
 local BG, BV
 
-local function restoreCharacterPhysics()
-    local char = LP.Character
-    if not char then return end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if root then
-        root.Velocity = Vector3.zero
-        root.RotVelocity = Vector3.zero
-        root.AssemblyLinearVelocity = Vector3.zero
-        root.AssemblyAngularVelocity = Vector3.zero
-    end
+local function safeRestoreHumanoid(humanoid)
     if humanoid then
         humanoid.PlatformStand = false
         humanoid.AutoRotate = true
-        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-        wait(0.1)
-        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    end
-end
-
-local function startNoclip(char)
-    if noclipConnection then noclipConnection:Disconnect() end
-    noclipConnection = RunService.Stepped:Connect(function()
-        if not char or not char.Parent then return end
-        for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
-                part.CanCollide = false
-            end
-        end
-    end)
-end
-
-local function stopNoclip(restorePhysics)
-    if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
-    local char = LP.Character
-    if char then
-        for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
-                part.CanCollide = true
-            end
-        end
-        if restorePhysics then
-            restoreCharacterPhysics()
-        end
+        pcall(function()
+            humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+            wait(0.05)
+            humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+        end)
     end
 end
 
@@ -244,7 +209,10 @@ local function safeStopFly()
     if flyConnection then flyConnection:Disconnect() flyConnection=nil end
     if BG then BG:Destroy() BG=nil end
     if BV then BV:Destroy() BV=nil end
-    restoreCharacterPhysics()
+    local char = LP.Character
+    if char then
+        safeRestoreHumanoid(char:FindFirstChildOfClass("Humanoid"))
+    end
 end
 
 local function startFly(char)
@@ -278,20 +246,34 @@ local function startFly(char)
     end)
 end
 
-local function cleanup()
-    flyAtivo = false
-    noclipAtivo = false
-    flyWasActiveBeforeDeath = false
-    noclipWasActiveBeforeDeath = false
-    safeStopFly()
-    stopNoclip(true)
+local function startNoclip(char)
+    if noclipConnection then noclipConnection:Disconnect() end
+    noclipConnection = RunService.Stepped:Connect(function()
+        if not noclipAtivo or not char or not char.Parent then return end
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
+                part.CanCollide = false
+            end
+        end
+    end)
 end
-cleanup()
+
+local function stopNoclip()
+    noclipAtivo = false
+    if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
+    local char = LP.Character
+    if char then
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
+                part.CanCollide = true
+            end
+        end
+        safeRestoreHumanoid(char:FindFirstChildOfClass("Humanoid"))
+    end
+end
 
 local function onCharacter(char)
     char:WaitForChild("HumanoidRootPart")
-    noclipAtivo = false
-    flyAtivo = false
     local humanoid = char:WaitForChild("Humanoid")
     humanoid.Died:Connect(function()
         if flyAtivo then
@@ -302,8 +284,7 @@ local function onCharacter(char)
         end
         if noclipAtivo then
             noclipWasActiveBeforeDeath = true
-            noclipAtivo = false
-            stopNoclip(true)
+            stopNoclip()
             OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
         end
     end)
@@ -338,7 +319,7 @@ FuncoesEspeciaisTab:AddToggle({
             if LP.Character then startNoclip(LP.Character) end
             OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
         else
-            stopNoclip(true)
+            stopNoclip()
             OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
         end
     end
