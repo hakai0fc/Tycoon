@@ -279,7 +279,6 @@ InfiniteYieldTab:AddButton({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/Aim2/refs/heads/main/Bot"))()
     end
 })
-
 InfiniteYieldTab:AddButton({
     Name = "AMMO HACK",
     Callback = function()
