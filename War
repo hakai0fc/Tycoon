@@ -377,26 +377,18 @@ local noclipConnection
 local BG
 local BV
 
-local function resetCharacterProperties()
+-- Reseta apenas as propriedades que o Fly altera
+local function resetFlyProperties()
     local char = LP.Character
     if not char then return end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if not humanoid or not root then return end
-
+    if not humanoid then return end
     if BG then BG:Destroy() BG=nil end
     if BV then BV:Destroy() BV=nil end
-
     humanoid.PlatformStand=false
     humanoid.AutoRotate=true
     humanoid.WalkSpeed=16
     humanoid.JumpPower=50
-
-    for _, part in pairs(char:GetDescendants()) do
-        if part:IsA("BasePart") and not part.Anchored then
-            part.CanCollide=true
-        end
-    end
 end
 
 local function disconnectFly()
@@ -475,7 +467,6 @@ local function toggleNoclip(state)
             })
         end)
     else
-        resetCharacterProperties()
         OrionLib:MakeNotification({
             Name="Noclip",
             Content="❌ Noclip desativado!",
@@ -488,7 +479,7 @@ end
 local function toggleFly(state)
     flyAtivo = state
     disconnectFly()
-    resetCharacterProperties()
+    resetFlyProperties()
     if flyAtivo then
         task.defer(function()
             startFly()
@@ -501,7 +492,7 @@ local function toggleFly(state)
             })
         end)
     else
-        resetCharacterProperties()
+        resetFlyProperties()
         if noclipAtivo then startNoclip() end
         OrionLib:MakeNotification({
             Name="Fly",
@@ -526,14 +517,14 @@ tab:AddSlider({
 
 local function onCharacterAdded(char)
     task.wait(0.5)
-    resetCharacterProperties()
+    resetFlyProperties()
 
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     if humanoid then
         humanoid.Died:Connect(function()
             if flyAtivo then
                 disconnectFly()
-                resetCharacterProperties()
+                resetFlyProperties()
                 OrionLib:MakeNotification({
                     Name = "Fly",
                     Content = "❌ Fly desativado ao morrer!",
