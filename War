@@ -483,7 +483,16 @@ end
 
 FuncoesEspeciaisTab:AddToggle({Name="Noclip",Default=false,Callback=toggleNoclip})
 FuncoesEspeciaisTab:AddToggle({Name="Fly",Default=false,Callback=toggleFly})
-FuncoesEspeciaisTab:AddSlider({Name="Velocidade Fly",Min=1,Max=2500,Default=50,Callback=function(value) flySpeed=value end})
+FuncoesEspeciaisTab:AddSlider({
+    Name = "Velocidade Fly",
+    Min = 1,
+    Max = 2500,
+    Default = 50,
+    SliderColor = Color3.fromRGB(255, 255, 255),
+    Callback = function(value) 
+        flySpeed = value 
+    end
+})
 
 LP.CharacterAdded:Connect(function()
     task.wait(0.5)
