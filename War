@@ -171,11 +171,6 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 })
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local LP = Players.LocalPlayer
-
 local flyAtivo = false
 local flySpeed = 50
 local noclipAtivo = false
@@ -237,7 +232,7 @@ end
 
 local function startNoclip(char)
     if noclipConnection then noclipConnection:Disconnect() end
-    noclipConnection = RunService.Stepped:Connect(function()
+    noclipConnection = RunService.Heartbeat:Connect(function()
         if not noclipAtivo or not char or not char.Parent then return end
         for _, part in ipairs(char:GetDescendants()) do
             if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
@@ -275,7 +270,7 @@ local function onCharacter(char)
             stopNoclip()
         end
     end)
-    wait(0.1)
+    task.wait(0.1)
     if flyWasActiveBeforeDeath then
         flyAtivo = true
         startFly(char)
@@ -335,7 +330,6 @@ FuncoesEspeciaisTab:AddSlider({
         flySpeed = Value
     end    
 })
-
 
 pcall(function()
     OrionLib:Init()
