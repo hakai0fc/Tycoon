@@ -422,10 +422,6 @@ local function disconnectNoclip()
 		end
 	end
 	safeRestoreRootCollision(char)
-	local humanoid = char:FindFirstChildOfClass("Humanoid")
-	if humanoid then
-		humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-	end
 end
 
 local function startNoclip()
@@ -433,7 +429,9 @@ local function startNoclip()
 	if not char then return end
 	disconnectNoclip()
 	noclipConnection = RunService.Stepped:Connect(function()
-		for _, part in pairs(char:GetDescendants()) do
+		local c = LP.Character
+		if not c then return end
+		for _, part in pairs(c:GetDescendants()) do
 			if part:IsA("BasePart") and not part.Anchored then
 				part.CanCollide = false
 			end
@@ -560,11 +558,6 @@ LP.CharacterAdded:Connect(function(char)
 			disconnectFly()
 			resetFlyProperties()
 			OrionLib:MakeNotification({Name="Fly", Content="❌ Fly desativado, você morreu!", Image="rbxassetid://4483345998", Time=2})
-		end
-		if noclipAtivo then
-			noclipAtivo = false
-			disconnectNoclip()
-			OrionLib:MakeNotification({Name="Noclip", Content="❌ Noclip desativado, você morreu!", Image="rbxassetid://4483345998", Time=2})
 		end
 	end)
 end)
