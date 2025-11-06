@@ -15,7 +15,7 @@ pcall(function()
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR",
+    Name = "HAKAI WAR💀",
     HidePremium = false,
     SaveConfig = true,           
     ConfigFolder = "OrionTest",  
@@ -200,6 +200,8 @@ local function restoreCharacterPhysics()
     if humanoid then
         humanoid.PlatformStand = false
         humanoid.AutoRotate = true
+        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+        wait(0.1)
         humanoid:ChangeState(Enum.HumanoidStateType.Physics)
     end
 end
@@ -209,7 +211,7 @@ local function startNoclip(char)
     noclipConnection = RunService.Stepped:Connect(function()
         if not char or not char.Parent then return end
         for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and not part.Anchored then
+            if part:IsA("BasePart") and not part.Anchored and part.Name ~= "HumanoidRootPart" then
                 part.CanCollide = false
             end
         end
