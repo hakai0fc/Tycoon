@@ -17,7 +17,7 @@ end)
 
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR",
+    Name = "HAKAI WaR",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "OrionTest",
