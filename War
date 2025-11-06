@@ -198,6 +198,7 @@ local function safeRestoreHumanoid(humanoid)
         pcall(function()
             humanoid.PlatformStand = false
             humanoid.AutoRotate = true
+            humanoid:ChangeState(Enum.HumanoidStateType.Physics)
         end)
     end
 end
@@ -264,16 +265,16 @@ local function stopNoclip()
     if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
     local char = LP.Character
     if char then
-        local parts = {}
-        for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
-                table.insert(parts, part)
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if humanoid and root then
+            for _, part in ipairs(char:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
+                    part.CanCollide = true
+                end
             end
+            safeRestoreHumanoid(humanoid)
         end
-        for _, part in ipairs(parts) do
-            part.CanCollide = true
-        end
-        safeRestoreHumanoid(char:FindFirstChildOfClass("Humanoid"))
     end
 end
 
@@ -358,7 +359,7 @@ FuncoesEspeciaisTab:AddSlider({
     ValueName = "Fly Speed",
     Callback = function(Value)
         flySpeed = Value
-    end
+    end    
 })
 
 pcall(function()
