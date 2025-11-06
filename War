@@ -345,13 +345,14 @@ local UserInputService = game:GetService("UserInputService")
 local player = game.Players.LocalPlayer
 
 local noclipAtivo = false
-local flyAtivo = false
-local flyConnection
 local noclipConnection
+local originalWalkSpeed = 16
+local originalJumpPower = 50
 
+local FLYING = false
 local FLY_SPEED = 5
+local flyConnection
 local BG, BV
-local originalWalkSpeed, originalJumpPower = 16, 50
 
 local function notify(title, text)
     OrionLib:MakeNotification({
@@ -375,23 +376,28 @@ local function getFeetParts(char)
     return feet
 end
 
-local function cleanup()
-    if BG then BG:Destroy() BG=nil end
-    if BV then BV:Destroy() BV=nil end
-    if noclipConnection then noclipConnection:Disconnect() noclipConnection=nil end
-    if flyConnection then flyConnection:Disconnect() flyConnection=nil end
-end
-
 local function restoreCharacter()
     local char = player.Character
     if not char then return end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
+    local root = char:FindFirstChild("HumanoidRootPart")
+
+    if root then
+        for _, obj in pairs(root:GetChildren()) do
+            if obj:IsA("BodyGyro") or obj:IsA("BodyVelocity") then
+                obj:Destroy()
+            end
+        end
+    end
+
     if humanoid then
         humanoid.PlatformStand = false
         humanoid.Sit = false
+        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+        task.wait(0.05)
+        humanoid:ChangeState(Enum.HumanoidStateType.Running)
         humanoid.WalkSpeed = originalWalkSpeed
         humanoid.JumpPower = originalJumpPower
-        humanoid:ChangeState(Enum.HumanoidStateType.Running)
     end
 
     for _, part in pairs(char:GetDescendants()) do
@@ -401,9 +407,11 @@ local function restoreCharacter()
         end
     end
 
-    cleanup()
+    if BG then BG:Destroy() BG = nil end
+    if BV then BV:Destroy() BV = nil end
+
+    FLYING = false
     noclipAtivo = false
-    flyAtivo = false
 end
 
 local function toggleNoclip(state)
@@ -412,38 +420,38 @@ local function toggleNoclip(state)
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     if not humanoid then return end
 
+    if noclipConnection then
+        noclipConnection:Disconnect()
+        noclipConnection = nil
+    end
+
     noclipAtivo = state
     if noclipAtivo then
         originalWalkSpeed = humanoid.WalkSpeed
         originalJumpPower = humanoid.JumpPower
 
         noclipConnection = RunService.Stepped:Connect(function()
-            if not noclipAtivo then return end
             local char = player.Character
             if not char then return end
-            local root = char:FindFirstChild("HumanoidRootPart")
-            if not root then return end
-
             local feet = getFeetParts(char)
-
-            local rayOrigin = root.Position
-            local rayDirection = Vector3.new(0, -4, 0)
-            local params = RaycastParams.new()
-            params.FilterDescendantsInstances = {char}
-            params.FilterType = Enum.RaycastFilterType.Blacklist
-
-            local result = workspace:Raycast(rayOrigin, rayDirection, params)
-            local isGrounded = result and result.Instance and result.Instance.Name:lower():find("terrain|grass|ground") -- ajuste aqui para chão do mapa
 
             for _, part in pairs(char:GetDescendants()) do
                 if part:IsA("BasePart") then
                     local isFoot = table.find(feet, part)
-                    -- pés colidem apenas com chão
-                    part.CanCollide = isFoot and isGrounded
+                    if isFoot then
+                        local rayOrigin = part.Position
+                        local rayDirection = Vector3.new(0, -1.5, 0)
+                        local rayParams = RaycastParams.new()
+                        rayParams.FilterDescendantsInstances = {char}
+                        rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+                        local result = workspace:Raycast(rayOrigin, rayDirection, rayParams)
+                        part.CanCollide = result and true or false
+                    else
+                        part.CanCollide = false
+                    end
                 end
             end
         end)
-
         notify("Noclip", "✅ Noclip ativado!")
     else
         restoreCharacter()
@@ -451,7 +459,6 @@ local function toggleNoclip(state)
     end
 end
 
--- Toggle Fly
 local function toggleFly(state)
     local char = player.Character
     if not char then return end
@@ -459,31 +466,35 @@ local function toggleFly(state)
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     if not root or not humanoid then return end
 
-    flyAtivo = state
-    cleanup()
+    if flyConnection then flyConnection:Disconnect() flyConnection = nil end
+    if BG then BG:Destroy() BG = nil end
+    if BV then BV:Destroy() BV = nil end
 
-    if flyAtivo then
+    FLYING = state
+    if FLYING then
         originalWalkSpeed = humanoid.WalkSpeed
         originalJumpPower = humanoid.JumpPower
 
         BG = Instance.new("BodyGyro")
         BG.P = 9e4
-        BG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+        BG.MaxTorque = Vector3.new(9e9,9e9,9e9)
         BG.CFrame = root.CFrame
         BG.Parent = root
 
         BV = Instance.new("BodyVelocity")
-        BV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-        BV.Velocity = Vector3.new(0, 0, 0)
+        BV.MaxForce = Vector3.new(9e9,9e9,9e9)
+        BV.Velocity = Vector3.new(0,0,0)
         BV.Parent = root
 
-        humanoid.PlatformStand = true
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
         humanoid.WalkSpeed = 0
         humanoid.JumpPower = 0
 
         flyConnection = RunService.RenderStepped:Connect(function()
+            if not FLYING then return end
             local moveVector = Vector3.new()
             local camera = workspace.CurrentCamera
+
             if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveVector += camera.CFrame.LookVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveVector -= camera.CFrame.LookVector end
             if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveVector -= camera.CFrame.RightVector end
@@ -493,29 +504,37 @@ local function toggleFly(state)
 
             BV.Velocity = moveVector.Magnitude > 0 and moveVector.Unit * FLY_SPEED or Vector3.new(0,0,0)
             BG.CFrame = CFrame.new(root.Position, root.Position + camera.CFrame.LookVector)
-        end)
 
+            if noclipAtivo then
+                local feet = getFeetParts(char)
+                for _, part in pairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        local isFoot = table.find(feet, part)
+                        if isFoot then
+                            local rayOrigin = part.Position
+                            local rayDirection = Vector3.new(0, -1.5, 0)
+                            local rayParams = RaycastParams.new()
+                            rayParams.FilterDescendantsInstances = {char}
+                            rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+                            local result = workspace:Raycast(rayOrigin, rayDirection, rayParams)
+                            part.CanCollide = result and true or false
+                        else
+                            part.CanCollide = false
+                        end
+                    end
+                end
+            end
+        end)
         notify("Fly", "✅ Fly ativado!")
     else
         restoreCharacter()
+        task.wait(0.1)
         notify("Fly", "❌ Fly desativado!")
     end
 end
 
-FuncoesEspeciaisTab:AddToggle({
-    Name = "Noclip",
-    Default = false,
-    Save = false,
-    Callback = toggleNoclip
-})
-
-FuncoesEspeciaisTab:AddToggle({
-    Name = "Fly",
-    Default = false,
-    Save = false,
-    Callback = toggleFly
-})
-
+FuncoesEspeciaisTab:AddToggle({Name = "Noclip", Default = false, Save = false, Callback = toggleNoclip})
+FuncoesEspeciaisTab:AddToggle({Name = "Fly", Default = false, Save = false, Callback = toggleFly})
 FuncoesEspeciaisTab:AddSlider({
     Name = "Fly Speed",
     Min = 1,
@@ -524,15 +543,14 @@ FuncoesEspeciaisTab:AddSlider({
     Color = Color3.fromRGB(255,255,255),
     Increment = 1,
     ValueName = "Speed",
-    Callback = function(value)
-        FLY_SPEED = value
-    end
+    Callback = function(value) FLY_SPEED = value end
 })
 
 player.CharacterAdded:Connect(function()
     task.wait(1)
     if noclipAtivo then toggleNoclip(true) end
-    if flyAtivo then toggleFly(true) end
+    if FLYING then toggleFly(true) end
 end)
+
 
 OrionLib:Init()
