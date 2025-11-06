@@ -395,21 +395,11 @@ local function stopNoclip()
     end
     local char = LP.Character
     if not char then return end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if not root or not humanoid then return end
-
-    local posAtual = root.Position
     for _, part in ipairs(char:GetDescendants()) do
         if part:IsA("BasePart") and not part.Anchored then
             part.CanCollide = true
         end
     end
-
-    humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-    task.wait(0.05)
-    humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-    root.CFrame = CFrame.new(posAtual + Vector3.new(0,3,0))
 end
 
 local function toggleNoclip(state)
@@ -467,7 +457,7 @@ local function stopFly()
         humanoid.PlatformStand = false
         humanoid.AutoRotate = true
         humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-        task.wait(0.05)
+        task.wait(0.1)
         humanoid:ChangeState(Enum.HumanoidStateType.Standing)
     end
 end
@@ -519,10 +509,10 @@ FuncoesEspeciaisTab:AddToggle({
 })
 
 FuncoesEspeciaisTab:AddSlider({
-    Name="Velocidade Fly",
+    Name="Speed Fly",
     Min=1,
     Max=2500,
     Default=50,
     Color=Color3.fromRGB(255,255,255),
-    Callback=function(v) pcall(function() flySpeed = v end) end
+    Callback=function(v) flySpeed = v end
 })
