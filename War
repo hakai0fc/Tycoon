@@ -15,7 +15,7 @@ pcall(function()
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR💀",
+    Name = "HAKAI WAR🇧🇷",
     HidePremium = false,
     SaveConfig = true,           
     ConfigFolder = "OrionTest",  
