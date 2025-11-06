@@ -342,6 +342,25 @@ FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
 local noclipConnection
 local noclipAtivo = false
+local originalHumanoidProperties = {}
+
+local function saveHumanoidProperties(humanoid)
+    originalHumanoidProperties.WalkSpeed = humanoid.WalkSpeed
+    originalHumanoidProperties.JumpPower = humanoid.JumpPower
+    originalHumanoidProperties.PlatformStand = humanoid.PlatformStand
+end
+
+local function restoreHumanoidProperties(humanoid)
+    if originalHumanoidProperties.WalkSpeed then
+        humanoid.WalkSpeed = originalHumanoidProperties.WalkSpeed
+    end
+    if originalHumanoidProperties.JumpPower then
+        humanoid.JumpPower = originalHumanoidProperties.JumpPower
+    end
+    if originalHumanoidProperties.PlatformStand ~= nil then
+        humanoid.PlatformStand = originalHumanoidProperties.PlatformStand
+    end
+end
 
 local function toggleNoclip(state)
     local char = player.Character
@@ -363,12 +382,14 @@ local function toggleNoclip(state)
             Image = "rbxassetid://4483345998",
             Time = 2
         })
+        saveHumanoidProperties(humanoid)
+        humanoid.PlatformStand = true 
 
         noclipConnection = RunService.Stepped:Connect(function()
             if not noclipAtivo then return end
             for _, part in pairs(char:GetDescendants()) do
                 if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                    -- Só desativa CanCollide se estiver acima do pé
+                    -- Desativa CanCollide para atravessar paredes, mas não chão
                     if part.Position.Y > hrp.Position.Y - 2 then
                         part.CanCollide = false
                     else
@@ -391,7 +412,7 @@ local function toggleNoclip(state)
             end
         end
 
-        humanoid.PlatformStand = false
+        restoreHumanoidProperties(humanoid)
         humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
     end
 end
