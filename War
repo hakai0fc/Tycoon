@@ -55,6 +55,7 @@ createTPButton(HubExclusivoTab, "TP FOXTROT", Vector3.new(83, 435, -700))
 createTPButton(HubExclusivoTab, "TP HOTEL", Vector3.new(233, 435, -338))
 createTPButton(HubExclusivoTab, "TP OMEGA", Vector3.new(76, 435, 43))
 
+-- Tab Teleporte Torres
 local TeleportTab = Window:MakeTab({
     Name = "TP TORRE TAB",
     Icon = "rbxassetid://4483345998",
@@ -65,12 +66,13 @@ TeleportTab:AddSection({ Name = "TP-TORRE" })
 createTPButton(TeleportTab, "ALPHA TORRE", Vector3.new(-360, 435, 132))
 createTPButton(TeleportTab, "BRAVO TORRE", Vector3.new(-645, 435, -53))
 createTPButton(TeleportTab, "CHARLIE TORRE", Vector3.new(-532, 435, -706))
-createTPButton(TeleportTab, "DELTA TORRE", Vector3.new(-532, 435, -706))
+createTPButton(TeleportTab, "DELTA TORRE", Vector3.new(-532, 435, -800)) -- corrigido posição
 createTPButton(TeleportTab, "ECHO TORRE", Vector3.new(-191, 435, -774))
 createTPButton(TeleportTab, "FOXTROT TORRE", Vector3.new(108, 435, -611))
 createTPButton(TeleportTab, "HOTEL TORRE", Vector3.new(189, 435, -255))
 createTPButton(TeleportTab, "OMEGA TORRE", Vector3.new(-13, 435, 69))
 
+-- Funções Adicionais
 local InfiniteYieldTab = Window:MakeTab({
     Name = "FUNÇÕES A+",
     Icon = "rbxassetid://4483345998",
@@ -177,11 +179,11 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 })
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
-flyAtivo = false
-flySpeed = 50
-noclipAtivo = false
-flyWasActiveBeforeDeath = false
-noclipWasActiveBeforeDeath = false
+local flyAtivo = false
+local flySpeed = 50
+local noclipAtivo = false
+local flyWasActiveBeforeDeath = false
+local noclipWasActiveBeforeDeath = false
 
 local flyConnection, noclipConnection
 local BG, BV
@@ -300,6 +302,7 @@ local function onCharacter(char)
             OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
         end
     end)
+    wait(0.1)
     if flyWasActiveBeforeDeath then
         flyAtivo = true
         startFly(char)
@@ -319,6 +322,7 @@ if LP.Character then
     onCharacter(LP.Character)
 end
 
+
 FuncoesEspeciaisTab:AddToggle({Name="Noclip",Default=false,Save=false,Flag="noclip",Callback=function(state)
     noclipAtivo=state
     if state then
@@ -329,6 +333,7 @@ FuncoesEspeciaisTab:AddToggle({Name="Noclip",Default=false,Save=false,Flag="nocl
         OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
     end
 end})
+
 
 FuncoesEspeciaisTab:AddToggle({Name="Fly",Default=false,Save=false,Flag="fly",Callback=function(state)
     flyAtivo=state
@@ -341,6 +346,7 @@ FuncoesEspeciaisTab:AddToggle({Name="Fly",Default=false,Save=false,Flag="fly",Ca
     end
 end})
 
+
 FuncoesEspeciaisTab:AddSlider({
 	Name = "Fly Speed",
 	Min = 0,
@@ -350,8 +356,10 @@ FuncoesEspeciaisTab:AddSlider({
 	Increment = 1,
 	ValueName = "Fly Speed",
 	Callback = function(Value)
-		print(Value)
+		flySpeed = Value
 	end    
 })
 
-OrionLib:Init()
+pcall(function()
+    OrionLib:Init()
+end)
