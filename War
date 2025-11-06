@@ -16,7 +16,7 @@ pcall(function()
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WaR",
+    Name = "HAKAI WAR1",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "OrionTest",
@@ -360,13 +360,13 @@ InfiniteYieldTab:AddButton({
     end
 })
 
-local FuncoesEspeciaisTab = Window:MakeTab({
+local FunçõesEspeciaisTab = Window:MakeTab({
     Name = "FUNÇÕES OP",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
-FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
+FunçõesEspeciaisTab:AddSection({ Name = "PODERES" })
 
 local noclipAtivo = false
 local flyAtivo = false
@@ -393,23 +393,37 @@ local function stopNoclip()
         noclipConnection:Disconnect()
         noclipConnection = nil
     end
+
     local char = LP.Character
     if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    local posAtual = root.CFrame
     for _, part in ipairs(char:GetDescendants()) do
         if part:IsA("BasePart") and not part.Anchored then
             part.CanCollide = true
+            part.AssemblyLinearVelocity = Vector3.zero
+            part.AssemblyAngularVelocity = Vector3.zero
         end
     end
-end
 
-local function toggleNoclip(state)
-    noclipAtivo = state
-    if noclipAtivo then
-        pcall(startNoclip)
-        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
-    else
-        pcall(stopNoclip)
-        OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
+    task.wait(0.1)
+    if humanoid then
+        if humanoid:FindFirstChild("Animator") then
+            local anim = Instance.new("Animation")
+            local temp = humanoid:FindFirstChild("Animator"):LoadAnimation(anim)
+            temp:Stop()
+            anim:Destroy()
+        end
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+        task.wait(0.05)
+        humanoid:ChangeState(Enum.HumanoidStateType.Standing)
+    end
+
+    if root and root.Parent then
+        root.CFrame = posAtual
     end
 end
 
@@ -430,7 +444,6 @@ local function startFly()
     BV.Parent = root
     humanoid.PlatformStand = true
     humanoid.AutoRotate = false
-    if flyConnection then flyConnection:Disconnect() end
     flyConnection = RunService.RenderStepped:Connect(function()
         if not flyAtivo then return end
         local cam = workspace.CurrentCamera
@@ -447,9 +460,9 @@ local function startFly()
 end
 
 local function stopFly()
-    if flyConnection then flyConnection:Disconnect() flyConnection=nil end
-    if BG then BG:Destroy() BG=nil end
-    if BV then BV:Destroy() BV=nil end
+    if flyConnection then flyConnection:Disconnect() flyConnection = nil end
+    if BG then BG:Destroy() BG = nil end
+    if BV then BV:Destroy() BV = nil end
     local char = LP.Character
     if not char then return end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -457,18 +470,29 @@ local function stopFly()
         humanoid.PlatformStand = false
         humanoid.AutoRotate = true
         humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-        task.wait(0.1)
+        task.wait(0.05)
         humanoid:ChangeState(Enum.HumanoidStateType.Standing)
+    end
+end
+
+local function toggleNoclip(state)
+    noclipAtivo = state
+    if noclipAtivo then
+        startNoclip()
+        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
+    else
+        stopNoclip()
+        OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
     end
 end
 
 local function toggleFly(state)
     flyAtivo = state
     if flyAtivo then
-        pcall(startFly)
+        startFly()
         OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
     else
-        pcall(stopFly)
+        stopFly()
         OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
     end
 end
@@ -477,12 +501,12 @@ LP.CharacterAdded:Connect(function(char)
     task.wait(1)
     local humanoid = char:WaitForChild("Humanoid")
     if noclipAtivo then
-        pcall(startNoclip)
+        startNoclip()
         OrionLib:MakeNotification({Name="Noclip",Content="♻️ Noclip reativado após renascer!",Image="rbxassetid://4483345998",Time=2})
     end
     if flyWasActiveBeforeDeath then
         flyAtivo = true
-        pcall(startFly)
+        startFly()
         OrionLib:MakeNotification({Name="Fly",Content="♻️ Fly reativado após renascer!",Image="rbxassetid://4483345998",Time=2})
         flyWasActiveBeforeDeath = false
     end
@@ -490,7 +514,7 @@ LP.CharacterAdded:Connect(function(char)
         if flyAtivo then
             flyWasActiveBeforeDeath = true
             flyAtivo = false
-            pcall(stopFly)
+            stopFly()
             OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
         end
     end)
@@ -499,20 +523,18 @@ end)
 FuncoesEspeciaisTab:AddToggle({
     Name="Noclip",
     Default=false,
-    Callback=function(state) pcall(toggleNoclip, state) end
+    Callback=toggleNoclip
 })
-
 FuncoesEspeciaisTab:AddToggle({
     Name="Fly",
     Default=false,
-    Callback=function(state) pcall(toggleFly, state) end
+    Callback=toggleFly
 })
-
 FuncoesEspeciaisTab:AddSlider({
-    Name="Speed Fly",
+    Name="Velocidade Fly",
     Min=1,
     Max=2500,
     Default=50,
     Color=Color3.fromRGB(255,255,255),
-    Callback=function(v) flySpeed = v end
+    Callback=function(v) flySpeed=v end
 })
