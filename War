@@ -378,10 +378,6 @@ local flyWasActiveBeforeDeath = false
 local function startNoclip()
     local char = LP.Character
     if not char then return end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, false)
-    end
     if noclipConnection then noclipConnection:Disconnect() end
     noclipConnection = RunService.Stepped:Connect(function()
         for _, part in ipairs(char:GetDescendants()) do
@@ -397,6 +393,7 @@ local function stopNoclip()
         noclipConnection:Disconnect()
         noclipConnection = nil
     end
+
     local char = LP.Character
     if not char then return end
     local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -412,13 +409,19 @@ local function stopNoclip()
         end
     end
 
-    task.wait(0.15)
+    task.wait(0.1)
     if humanoid then
-        humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
-        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+        if humanoid:FindFirstChild("Animator") then
+            local anim = Instance.new("Animation")
+            local temp = humanoid:FindFirstChild("Animator"):LoadAnimation(anim)
+            temp:Stop()
+            anim:Destroy()
+        end
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
         task.wait(0.05)
         humanoid:ChangeState(Enum.HumanoidStateType.Standing)
     end
+
     if root and root.Parent then
         root.CFrame = posAtual
     end
@@ -466,7 +469,7 @@ local function stopFly()
     if humanoid then
         humanoid.PlatformStand = false
         humanoid.AutoRotate = true
-        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+        humanoid:ChangeState(Enum.HumanoidStateType.Physics)
         task.wait(0.05)
         humanoid:ChangeState(Enum.HumanoidStateType.Standing)
     end
@@ -517,17 +520,17 @@ LP.CharacterAdded:Connect(function(char)
     end)
 end)
 
-FunçõesEspeciaisTab:AddToggle({
+FuncoesEspeciaisTab:AddToggle({
     Name="Noclip",
     Default=false,
     Callback=toggleNoclip
 })
-FunçõesEspeciaisTab:AddToggle({
+FuncoesEspeciaisTab:AddToggle({
     Name="Fly",
     Default=false,
     Callback=toggleFly
 })
-FunçõesEspeciaisTab:AddSlider({
+FuncoesEspeciaisTab:AddSlider({
     Name="Velocidade Fly",
     Min=1,
     Max=2500,
