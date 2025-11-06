@@ -1,4 +1,9 @@
---Load Orion Library 100%
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LP = Players.LocalPlayer
+
 local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/hakaiofc/Base/main/HUBORION'))()
 
 --ANTI AFK
@@ -10,9 +15,6 @@ pcall(function()
     end)
 end)
 
---GLOBALS
-local LP = game.Players.LocalPlayer
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 --Criando Interface
 local Window = OrionLib:MakeWindow({
@@ -360,16 +362,13 @@ InfiniteYieldTab:AddButton({
     end
 })
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local LP = Players.LocalPlayer
-
 local FuncoesEspeciaisTab = Window:MakeTab({
     Name = "FUNÇÕES OP",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
+
+FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
 local noclipAtivo = false
 local flyAtivo = false
