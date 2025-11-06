@@ -380,8 +380,6 @@ end
 local function toggleNoclip(state)
     local char = player.Character
     if not char then return end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if not humanoid then return end
     if noclipConnection then
         noclipConnection:Disconnect()
         noclipConnection = nil
@@ -402,7 +400,11 @@ local function toggleNoclip(state)
             Time = 2
         })
     else
-        restoreCharacter()
+        for _, part in pairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
+        end
         OrionLib:MakeNotification({
             Name = "Noclip",
             Content = "❌ Noclip desativado!",
@@ -501,4 +503,5 @@ FuncoesEspeciaisTab:AddSlider({
     Color = Color3.fromRGB(255,255,255),
     Callback = setFlySpeed
 })
+
 OrionLib:Init()
