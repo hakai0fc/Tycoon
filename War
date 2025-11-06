@@ -365,7 +365,6 @@ local function toggleNoclip(state)
             Time = 2
         })
 
-        -- Salva estado original do PlatformStand
         originalPlatformStand = humanoid.PlatformStand
         humanoid.PlatformStand = true 
 
@@ -373,7 +372,6 @@ local function toggleNoclip(state)
             if not noclipAtivo then return end
             for _, part in pairs(char:GetDescendants()) do
                 if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                    -- Só desativa CanCollide se estiver acima do pé
                     if part.Position.Y > hrp.Position.Y - 2 then
                         part.CanCollide = false
                     else
