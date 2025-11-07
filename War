@@ -22,6 +22,18 @@ local Window = OrionLib:MakeWindow({
     IntroEnabled = false
 })
 
+-- Declaração das variáveis globais antes de serem usadas
+local flyAtivo = false
+local flySpeed = 50
+local noclipAtivo = false
+local flyWasActiveBeforeDeath = false
+local noclipWasActiveBeforeDeath = false
+
+local flyConnection, noclipConnection
+local BG, BV
+local originalCanCollide = {}
+local protectedObject = nil
+
 local HubExclusivoTab = Window:MakeTab({
     Name = "TP BASES",
     Icon = "rbxassetid://4483345998",
@@ -164,17 +176,6 @@ local FuncoesEspeciaisTab = Window:MakeTab({
     PremiumOnly = false
 })
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
-
-local flyAtivo = false
-local flySpeed = 50
-local noclipAtivo = false
-local flyWasActiveBeforeDeath = false
-local noclipWasActiveBeforeDeath = false
-
-local flyConnection, noclipConnection
-local BG, BV
-local originalCanCollide = {}
-local protectedObject = nil
 
 local function safeRestoreHumanoid(humanoid)
     if humanoid and humanoid.Parent then
