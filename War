@@ -25,10 +25,12 @@ local Window = OrionLib:MakeWindow({
 local flyAtivo = false
 local flySpeed = 50
 local noclipAtivo = false
+local groundBarrierAtivo = false
 local flyWasActiveBeforeDeath = false
 local noclipWasActiveBeforeDeath = false
+local groundBarrierWasActiveBeforeDeath = false
 
-local flyConnection, noclipConnection
+local flyConnection, noclipConnection, groundBarrierConnection
 local BG, BV
 local originalCanCollide = {}
 
@@ -236,7 +238,6 @@ local function startNoclip(char)
     end
     noclipConnection = RunService.Heartbeat:Connect(function()
         if not noclipAtivo or not char then return end
-    CanCollide = false
         for part in pairs(originalCanCollide) do
             if part and part.Parent then
                 part.CanCollide = false
@@ -259,6 +260,25 @@ local function stopNoclip()
     originalCanCollide = {}
 end
 
+local function startGroundBarrier(char)
+    if groundBarrierConnection then groundBarrierConnection:Disconnect() end
+    groundBarrierConnection = RunService.Heartbeat:Connect(function()
+        if not groundBarrierAtivo or not char then return end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if root and root.Position.Y < 435 then
+            root.CFrame = CFrame.new(root.Position.X, 435, root.Position.Z)
+        end
+    end)
+end
+
+local function stopGroundBarrier()
+    groundBarrierAtivo = false
+    if groundBarrierConnection then
+        groundBarrierConnection:Disconnect()
+        groundBarrierConnection = nil
+    end
+end
+
 local function onCharacter(char)
     char:WaitForChild("HumanoidRootPart")
     local humanoid = char:WaitForChild("Humanoid")
@@ -274,6 +294,11 @@ local function onCharacter(char)
             stopNoclip()
             OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
         end
+        if groundBarrierAtivo then
+            groundBarrierWasActiveBeforeDeath = true
+            stopGroundBarrier()
+            OrionLib:MakeNotification({Name="Ground Barrier",Content="❌ Ground Barrier desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
+        end
     end)
     task.wait(0.1)
     if flyWasActiveBeforeDeath then
@@ -287,6 +312,12 @@ local function onCharacter(char)
         startNoclip(char)
         OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
         noclipWasActiveBeforeDeath = false
+    end
+    if groundBarrierWasActiveBeforeDeath then
+        groundBarrierAtivo = true
+        startGroundBarrier(char)
+        OrionLib:MakeNotification({Name="Ground Barrier",Content="✅ Ground Barrier reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
+        groundBarrierWasActiveBeforeDeath = false
     end
 end
 
@@ -325,6 +356,23 @@ FuncoesEspeciaisTab:AddToggle({
         else
             safeStopFly()
             OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
+        end
+    end
+})
+
+FuncoesEspeciaisTab:AddToggle({
+    Name = "Ground Barrier",
+    Default = false,
+    Save = false,
+    Flag = "ground_barrier",
+    Callback = function(state)
+        groundBarrierAtivo = state
+        if state then
+            if LP.Character then startGroundBarrier(LP.Character) end
+            OrionLib:MakeNotification({Name="Ground Barrier",Content="✅ Ground Barrier ativado! (Impede cair abaixo de Y=435)",Image="rbxassetid://4483345998",Time=2})
+        else
+            stopGroundBarrier()
+            OrionLib:MakeNotification({Name="Ground Barrier",Content="❌ Ground Barrier desativado!",Image="rbxassetid://4483345998",Time=2})
         end
     end
 })
