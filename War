@@ -361,7 +361,7 @@ FuncoesEspeciaisTab:AddToggle({
 })
 
 FuncoesEspeciaisTab:AddToggle({
-    Name = "Ground Barrier",
+    Name = "Anti Void",
     Default = false,
     Save = false,
     Flag = "ground_barrier",
@@ -369,10 +369,10 @@ FuncoesEspeciaisTab:AddToggle({
         groundBarrierAtivo = state
         if state then
             if LP.Character then startGroundBarrier(LP.Character) end
-            OrionLib:MakeNotification({Name="Ground Barrier",Content="✅ Ground Barrier ativado! (Impede cair abaixo de Y=435)",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({Name="Ground Barrier",Content="✅ Anti Void ativado! (Impede cair abaixo de Y=435)",Image="rbxassetid://4483345998",Time=2})
         else
             stopGroundBarrier()
-            OrionLib:MakeNotification({Name="Ground Barrier",Content="❌ Ground Barrier desativado!",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({Name="Ground Barrier",Content="❌ Anti Void desativado!",Image="rbxassetid://4483345998",Time=2})
         end
     end
 })
