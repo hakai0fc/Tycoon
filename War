@@ -77,7 +77,7 @@ local TeleportTab = Window:MakeTab({
 })
 TeleportTab:AddSection({ Name = "TP-TORRE" })
 
-createTPButton(TeleportTab, "ALPHA TORRE", Vector3.new(-360, 435, 132))
+createTPButton(TeleportTab, "ALPHA TORRE", Vector3.new(-363, 435, 132))
 createTPButton(TeleportTab, "BRAVO TORRE", Vector3.new(-645, 435, -53))
 createTPButton(TeleportTab, "CHARLIE TORRE", Vector3.new(-532, 435, -706))
 createTPButton(TeleportTab, "DELTA TORRE", Vector3.new(-528, 435, -702))
