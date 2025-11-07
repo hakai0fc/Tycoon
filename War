@@ -15,7 +15,7 @@ pcall(function()
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR🇧🇷",
+    Name = "HAKAI WAR",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "OrionTest",
@@ -245,7 +245,7 @@ local function startNoclip(char)
     if noclipConnection then noclipConnection:Disconnect() end
     originalCanCollide = {}
     for _, part in ipairs(char:GetDescendants()) do
-        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part.Anchored then
+        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and part.Name ~= "Left Leg" and part.Name ~= "Right Leg" and not part.Anchored then
             originalCanCollide[part] = part.CanCollide
             part.CanCollide = false
         end
@@ -271,7 +271,15 @@ local function stopNoclip()
     originalCanCollide = {}
     local char = LP.Character
     if char then
-        safeRestoreHumanoid(char:FindFirstChildOfClass("Humanoid"))
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            pcall(function()
+                humanoid:ChangeState(Enum.HumanoidStateType.Running)
+                task.wait(0.05)
+                humanoid:ChangeState(Enum.HumanoidStateType.None)
+            end)
+        end
+        safeRestoreHumanoid(humanoid)
     end
 end
 
