@@ -34,7 +34,12 @@ local function createTPButton(tab, name, pos)
         Name = name,
         Callback = function()
             if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
-                LP.Character:MoveTo(pos)
+                local root = LP.Character:FindFirstChild("HumanoidRootPart")
+                if noclipAtivo and root then
+                    root.CFrame = CFrame.new(pos)
+                else
+                    LP.Character:MoveTo(pos)
+                end
             else
                 warn("Personagem não encontrado ou carregando...")
             end
