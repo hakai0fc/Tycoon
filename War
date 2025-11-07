@@ -15,7 +15,7 @@ pcall(function()
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR",
+    Name = "HAKAI WAR🇧🇷",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "OrionTest",
@@ -25,10 +25,12 @@ local Window = OrionLib:MakeWindow({
 local flyAtivo = false
 local flySpeed = 50
 local noclipAtivo = false
+local antiVoidAtivo = false
 local flyWasActiveBeforeDeath = false
 local noclipWasActiveBeforeDeath = false
+local antiVoidWasActiveBeforeDeath = false
 
-local flyConnection
+local flyConnection, antiVoidConnection
 local BG, BV
 local originalCanCollide = {}
 
@@ -79,7 +81,7 @@ TeleportTab:AddSection({ Name = "TP-TORRE" })
 
 createTPButton(TeleportTab, "ALPHA TORRE", Vector3.new(-363, 435, 132))
 createTPButton(TeleportTab, "BRAVO TORRE", Vector3.new(-645, 435, -53))
-createTPButton(TeleportTab, "CHARLIE TORRE", Vector3.new(-533, 435, -707))
+createTPButton(TeleportTab, "CHARLIE TORRE", Vector3.new(-532, 435, -706))
 createTPButton(TeleportTab, "DELTA TORRE", Vector3.new(-528, 435, -702))
 createTPButton(TeleportTab, "ECHO TORRE", Vector3.new(-191, 435, -774))
 createTPButton(TeleportTab, "FOXTROT TORRE", Vector3.new(108, 435, -611))
@@ -245,6 +247,25 @@ local function stopNoclip()
     originalCanCollide = {}
 end
 
+local function startAntiVoid(char)
+    if antiVoidConnection then antiVoidConnection:Disconnect() end
+    antiVoidConnection = RunService.Heartbeat:Connect(function()
+        if not antiVoidAtivo or not char then return end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if root and root.Position.Y < 435 then
+            root.CFrame = CFrame.new(root.Position.X, 435, root.Position.Z)
+        end
+    end)
+end
+
+local function stopAntiVoid()
+    antiVoidAtivo = false
+    if antiVoidConnection then
+        antiVoidConnection:Disconnect()
+        antiVoidConnection = nil
+    end
+end
+
 local function onCharacter(char)
     char:WaitForChild("HumanoidRootPart")
     local humanoid = char:WaitForChild("Humanoid")
@@ -253,12 +274,17 @@ local function onCharacter(char)
             flyWasActiveBeforeDeath = true
             flyAtivo = false
             safeStopFly()
-            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado! (Você Morreu!)",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
         end
         if noclipAtivo then
             noclipWasActiveBeforeDeath = true
             stopNoclip()
-            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado! (Você mMrreu!)",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
+        end
+        if antiVoidAtivo then
+            antiVoidWasActiveBeforeDeath = true
+            stopAntiVoid()
+            OrionLib:MakeNotification({Name="Anti Void",Content="❌ Anti Void desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
         end
     end)
     task.wait(0.1)
@@ -273,6 +299,12 @@ local function onCharacter(char)
         startNoclip(char)
         OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
         noclipWasActiveBeforeDeath = false
+    end
+    if antiVoidWasActiveBeforeDeath then
+        antiVoidAtivo = true
+        startAntiVoid(char)
+        OrionLib:MakeNotification({Name="Anti Void",Content="✅ Anti Void reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
+        antiVoidWasActiveBeforeDeath = false
     end
 end
 
@@ -325,6 +357,23 @@ FuncoesEspeciaisTab:AddSlider({
     ValueName = "Fly Speed",
     Callback = function(Value)
         flySpeed = Value
+    end
+})
+
+FuncoesEspeciaisTab:AddToggle({
+    Name = "Anti Void",
+    Default = false,
+    Save = false,
+    Flag = "anti_void",
+    Callback = function(state)
+        antiVoidAtivo = state
+        if state then
+            if LP.Character then startAntiVoid(LP.Character) end
+            OrionLib:MakeNotification({Name="Anti Void",Content="✅ Anti Void ativado! (Impede cair abaixo de Y=435)",Image="rbxassetid://4483345998",Time=2})
+        else
+            stopAntiVoid()
+            OrionLib:MakeNotification({Name="Anti Void",Content="❌ Anti Void desativado!",Image="rbxassetid://4483345998",Time=2})
+        end
     end
 })
 
