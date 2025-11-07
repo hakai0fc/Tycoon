@@ -42,7 +42,7 @@ local function createTPButton(tab, name, pos)
     })
 end
 
-createTPButton(HubExclusivoTab, "TP ARVORE KOTH", Vector3.new(-274, 558, -366))
+createTPButton(HubExclusivoTab, "TP ARVORE KOTH1", Vector3.new(-274, 558, -366))
 createTPButton(HubExclusivoTab, "TP ARVORE KOTH2", Vector3.new(-272, 561, -246))
 createTPButton(HubExclusivoTab, "TP ARVORE KOTH3", Vector3.new(-205, 563, -378))
 createTPButton(HubExclusivoTab, "TP ARVORE KOTH4", Vector3.new(-271, 560, -248))
