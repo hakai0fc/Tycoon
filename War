@@ -72,7 +72,104 @@ createTPButton(TeleportTab, "ECHO TORRE", Vector3.new(-191, 435, -774))
 createTPButton(TeleportTab, "FOXTROT TORRE", Vector3.new(108, 435, -611))
 createTPButton(TeleportTab, "HOTEL TORRE", Vector3.new(189, 435, -255))
 createTPButton(TeleportTab, "OMEGA TORRE", Vector3.new(-13, 435, 69))
+local InfiniteYieldTab = Window:MakeTab({
+    Name = "FUNÇÕES A+",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+InfiniteYieldTab:AddSection({ Name = "FUNÇÕES ADICIONAIS" })
 
+InfiniteYieldTab:AddButton({
+    Name = "AimBot",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/Aim/refs/heads/main/Bot"))()
+    end
+})
+InfiniteYieldTab:AddButton({
+    Name = "AimBot2",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/Aim2/refs/heads/main/Bot"))()
+    end
+})
+InfiniteYieldTab:AddButton({
+    Name = "AMMO HACK",
+    Callback = function()
+        local player = LP
+        if not player then return end
+
+        local function hackRepValues(repValues)  
+            local function updateValue(valueName)  
+                local value = repValues:FindFirstChild(valueName)  
+                if value and value:IsA("IntValue") then  
+                    value.Value = 9999999999  
+                else  
+                    repValues.ChildAdded:Connect(function(child)  
+                        if child.Name == valueName and child:IsA("IntValue") then  
+                            child.Value = 9999999999  
+                        end  
+                    end)  
+                end  
+            end  
+            updateValue("Mag")  
+            updateValue("StoredAmmo")  
+        end  
+
+        local function hackTool(tool)  
+            if tool:IsA("Tool") then  
+                local repValues = tool:FindFirstChild("RepValues")  
+                if repValues then  
+                    hackRepValues(repValues)  
+                else  
+                    tool.ChildAdded:Connect(function(child)  
+                        if child.Name == "RepValues" then  
+                            hackRepValues(child)  
+                        end  
+                    end)  
+                end  
+            end  
+        end  
+
+        for _, tool in ipairs(player.Backpack:GetChildren()) do  
+            hackTool(tool)  
+        end  
+
+        if player.Character then  
+            for _, tool in ipairs(player.Character:GetChildren()) do  
+                hackTool(tool)  
+            end  
+        end  
+
+        player.Backpack.ChildAdded:Connect(hackTool)  
+        if player.Character then  
+            player.Character.ChildAdded:Connect(hackTool)  
+        end  
+
+        OrionLib:MakeNotification({  
+            Name = "Ammo Hack",  
+            Content = "✅ Munição infinita em todas armas!",  
+            Image = "rbxassetid://4483345998",  
+            Time = 2  
+        })  
+    end
+})
+InfiniteYieldTab:AddButton({
+    Name = "ANTI LAG",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/ANTILAG/refs/heads/main/HAKAI"))()
+    end
+})
+InfiniteYieldTab:AddButton({
+    Name = "HAKAI ESP",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/ESP/refs/heads/main/HAKAI"))()
+    end
+})
+InfiniteYieldTab:AddButton({
+    Name = "InfiniteYield",
+    Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/hakai0fc/EdgeIY/refs/heads/main/infiniteyield'))()
+    end
+})
 local FuncoesEspeciaisTab = Window:MakeTab({
     Name = "FUNÇÕES OP",
     Icon = "rbxassetid://4483345998",
