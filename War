@@ -277,9 +277,9 @@ local function startAntiVoid(char)
     antiVoidConnection = RunService.Heartbeat:Connect(function()
         if not antiVoidAtivo or not char or not char:FindFirstChild("HumanoidRootPart") then return end
         local root = char:FindFirstChild("HumanoidRootPart")
-        if root.Position.Y < 435 then
+        if root.Position.Y < 433 then
             root.Velocity = Vector3.zero
-            root.CFrame = CFrame.new(root.Position.X, 440, root.Position.Z)
+            root.CFrame = CFrame.new(root.Position.X, 435, root.Position.Z)
         end
     end)
 end
@@ -354,7 +354,7 @@ FuncoesEspeciaisTab:AddToggle({
             if LP.Character then startAntiVoid(LP.Character) end
             OrionLib:MakeNotification({
                 Name="Anti Void",
-                Content="✅ Anti Void ativado! (Impede cair abaixo de Y=435)",
+                Content="✅ Anti Void ativado!",
                 Image="rbxassetid://4483345998",
                 Time=2
             })
