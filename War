@@ -15,23 +15,16 @@ pcall(function()
 end)
 
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR💀",
+    Name = "HAKAI WAR",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "OrionTest",
     IntroEnabled = false
 })
 
-local flyAtivo = false
-local flySpeed = 50
 local noclipAtivo = false
-local groundBarrierAtivo = false
-local flyWasActiveBeforeDeath = false
 local noclipWasActiveBeforeDeath = false
-local groundBarrierWasActiveBeforeDeath = false
 
-local flyConnection, noclipConnection, groundBarrierConnection
-local BG, BV
 local originalCanCollide = {}
 
 local HubExclusivoTab = Window:MakeTab({
@@ -177,58 +170,7 @@ local FuncoesEspeciaisTab = Window:MakeTab({
 })
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
 
-local function safeRestoreHumanoid(humanoid)
-    if humanoid and humanoid.Parent then
-        pcall(function()
-            humanoid.PlatformStand = false
-            humanoid.AutoRotate = true
-        end)
-    end
-end
-
-local function safeStopFly()
-    if flyConnection then flyConnection:Disconnect() flyConnection=nil end
-    if BG then BG:Destroy() BG=nil end
-    if BV then BV:Destroy() BV=nil end
-    local char = LP.Character
-    if char then
-        safeRestoreHumanoid(char:FindFirstChildOfClass("Humanoid"))
-    end
-end
-
-local function startFly(char)
-    safeStopFly()
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if not humanoid or not root then return end
-    BG = Instance.new("BodyGyro")
-    BV = Instance.new("BodyVelocity")
-    BG.MaxTorque = Vector3.new(9e9,9e9,9e9)
-    BG.P = 9e4
-    BG.CFrame = root.CFrame
-    BG.Parent = root
-    BV.MaxForce = Vector3.new(9e9,9e9,9e9)
-    BV.Velocity = Vector3.zero
-    BV.Parent = root
-    humanoid.PlatformStand = true
-    humanoid.AutoRotate = false
-    flyConnection = RunService.RenderStepped:Connect(function()
-        if not flyAtivo or not root.Parent then return end
-        local cam = workspace.CurrentCamera
-        local move = Vector3.zero
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then move += cam.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then move -= cam.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then move -= cam.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then move += cam.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move += Vector3.new(0,1,0) end
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then move -= Vector3.new(0,1,0) end
-        BV.Velocity = move.Magnitude>0 and move.Unit*flySpeed or Vector3.zero
-        BG.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
-    end)
-end
-
 local function startNoclip(char)
-    if noclipConnection then noclipConnection:Disconnect() end
     originalCanCollide = {}
     for _, part in ipairs(workspace:GetDescendants()) do
         if part:IsA("BasePart") and part.Parent ~= char then
@@ -236,22 +178,10 @@ local function startNoclip(char)
             part.CanCollide = false
         end
     end
-    noclipConnection = RunService.Heartbeat:Connect(function()
-        if not noclipAtivo or not char then return end
-        for part in pairs(originalCanCollide) do
-            if part and part.Parent then
-                part.CanCollide = false
-            end
-        end
-    end)
 end
 
 local function stopNoclip()
     noclipAtivo = false
-    if noclipConnection then
-        noclipConnection:Disconnect()
-        noclipConnection = nil
-    end
     for part, original in pairs(originalCanCollide) do
         if part and part.Parent then
             part.CanCollide = original
@@ -260,64 +190,22 @@ local function stopNoclip()
     originalCanCollide = {}
 end
 
-local function startGroundBarrier(char)
-    if groundBarrierConnection then groundBarrierConnection:Disconnect() end
-    groundBarrierConnection = RunService.Heartbeat:Connect(function()
-        if not groundBarrierAtivo or not char then return end
-        local root = char:FindFirstChild("HumanoidRootPart")
-        if root and root.Position.Y < 435 then
-            root.CFrame = CFrame.new(root.Position.X, 435, root.Position.Z)
-        end
-    end)
-end
-
-local function stopGroundBarrier()
-    groundBarrierAtivo = false
-    if groundBarrierConnection then
-        groundBarrierConnection:Disconnect()
-        groundBarrierConnection = nil
-    end
-end
-
 local function onCharacter(char)
     char:WaitForChild("HumanoidRootPart")
     local humanoid = char:WaitForChild("Humanoid")
     humanoid.Died:Connect(function()
-        if flyAtivo then
-            flyWasActiveBeforeDeath = true
-            flyAtivo = false
-            safeStopFly()
-            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
-        end
         if noclipAtivo then
             noclipWasActiveBeforeDeath = true
             stopNoclip()
             OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
         end
-        if groundBarrierAtivo then
-            groundBarrierWasActiveBeforeDeath = true
-            stopGroundBarrier()
-            OrionLib:MakeNotification({Name="Ground Barrier",Content="❌ Ground Barrier desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
-        end
     end)
     task.wait(0.1)
-    if flyWasActiveBeforeDeath then
-        flyAtivo = true
-        startFly(char)
-        OrionLib:MakeNotification({Name="Fly",Content="✅ Fly reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
-        flyWasActiveBeforeDeath = false
-    end
     if noclipWasActiveBeforeDeath then
         noclipAtivo = true
         startNoclip(char)
         OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
         noclipWasActiveBeforeDeath = false
-    end
-    if groundBarrierWasActiveBeforeDeath then
-        groundBarrierAtivo = true
-        startGroundBarrier(char)
-        OrionLib:MakeNotification({Name="Ground Barrier",Content="✅ Ground Barrier reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
-        groundBarrierWasActiveBeforeDeath = false
     end
 end
 
@@ -340,53 +228,6 @@ FuncoesEspeciaisTab:AddToggle({
             stopNoclip()
             OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
         end
-    end
-})
-
-FuncoesEspeciaisTab:AddToggle({
-    Name = "Fly",
-    Default = false,
-    Save = false,
-    Flag = "fly",
-    Callback = function(state)
-        flyAtivo = state
-        if state then
-            if LP.Character then startFly(LP.Character) end
-            OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
-        else
-            safeStopFly()
-            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
-        end
-    end
-})
-
-FuncoesEspeciaisTab:AddToggle({
-    Name = "Anti Void",
-    Default = false,
-    Save = false,
-    Flag = "ground_barrier",
-    Callback = function(state)
-        groundBarrierAtivo = state
-        if state then
-            if LP.Character then startGroundBarrier(LP.Character) end
-            OrionLib:MakeNotification({Name="Ground Barrier",Content="✅ Anti Void ativado! (Impede cair abaixo de Y=435)",Image="rbxassetid://4483345998",Time=2})
-        else
-            stopGroundBarrier()
-            OrionLib:MakeNotification({Name="Ground Barrier",Content="❌ Anti Void desativado!",Image="rbxassetid://4483345998",Time=2})
-        end
-    end
-})
-
-FuncoesEspeciaisTab:AddSlider({
-    Name = "Fly Speed",
-    Min = 0,
-    Max = 2500,
-    Default = 50,
-    Color = Color3.fromRGB(255, 255, 255),
-    Increment = 1,
-    ValueName = "Fly Speed",
-    Callback = function(Value)
-        flySpeed = Value
     end
 })
 
