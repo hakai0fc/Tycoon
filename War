@@ -1,9 +1,11 @@
-local Players = game:GetService("Players")
+local Players = game:GetService("Players") 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LP = Players.LocalPlayer
-local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/jensonhirst/Orion/main/Source.lua'))()
+
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/hakai0fc/Orion/refs/heads/main/BaseHub'))()
+
 pcall(function()
     local VirtualUser = game:GetService('VirtualUser')
     LP.Idled:Connect(function()
@@ -11,22 +13,15 @@ pcall(function()
         VirtualUser:ClickButton2(Vector2.new(0, 0))
     end)
 end)
+
 local Window = OrionLib:MakeWindow({
-    Name = "HAKAI WAR🇧🇷",
+    Name = "HAKAI WAR",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "OrionTest",
     IntroEnabled = false
 })
-local flyAtivo = false
-local flySpeed = 50
-local noclipAtivo = false
-local antiVoidAtivo = false
-local flyWasActiveBeforeDeath = false
-local noclipWasActiveBeforeDeath = false
-local antiVoidWasActiveBeforeDeath = false
-local flyConnection, antiVoidConnection, noclipConnection
-local BG, BV
+
 local function createTPButton(tab, name, pos)
     tab:AddButton({
         Name = name,
@@ -76,92 +71,25 @@ createTPButton(TeleportTab, "ECHO TORRE", Vector3.new(-191, 435, -774))
 createTPButton(TeleportTab, "FOXTROT TORRE", Vector3.new(108, 435, -611))
 createTPButton(TeleportTab, "HOTEL TORRE", Vector3.new(189, 435, -255))
 createTPButton(TeleportTab, "OMEGA TORRE", Vector3.new(-13, 435, 69))
-local InfiniteYieldTab = Window:MakeTab({
-    Name = "FUNÇÕES A+",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-InfiniteYieldTab:AddSection({ Name = "FUNÇÕES ADICIONAIS" })
-InfiniteYieldTab:AddButton({
-    Name = "AimBot",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/Aim/refs/heads/main/Bot"))()
-    end
-})
-InfiniteYieldTab:AddButton({
-    Name = "AimBot2",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/Aim2/refs/heads/main/Bot"))()
-    end
-})
-InfiniteYieldTab:AddButton({
-    Name = "AMMO HACK",
-    Callback = function()
-        local player = LP
-        if not player then return end
-        local function hackRepValues(repValues)
-            local function updateValue(valueName)
-                local value = repValues:FindFirstChild(valueName)
-                if value and value:IsA("IntValue") then
-                    value.Value = 9999999999
-                else
-                    repValues.ChildAdded:Connect(function(child)
-                        if child.Name == valueName and child:IsA("IntValue") then
-                            child.Value = 9999999999
-                        end
-                    end)
-                end
-            end
-            updateValue("Mag")
-            updateValue("StoredAmmo")
-        end
-        local function hackTool(tool)
-            if tool:IsA("Tool") then
-                local repValues = tool:FindFirstChild("RepValues")
-                if repValues then
-                    hackRepValues(repValues)
-                else
-                    tool.ChildAdded:Connect(function(child)
-                        if child.Name == "RepValues" then
-                            hackRepValues(child)
-                        end
-                    end)
-                end
-            end
-        end
-        for _, tool in ipairs(player.Backpack:GetChildren()) do hackTool(tool) end
-        if player.Character then
-            for _, tool in ipairs(player.Character:GetChildren()) do hackTool(tool) end
-        end
-        player.Backpack.ChildAdded:Connect(hackTool)
-        if player.Character then player.Character.ChildAdded:Connect(hackTool) end
-        OrionLib:MakeNotification({Name="Ammo Hack",Content="✅ Munição infinita em todas armas!",Image="rbxassetid://4483345998",Time=2})
-    end
-})
-InfiniteYieldTab:AddButton({
-    Name = "ANTI LAG",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/ANTILAG/refs/heads/main/HAKAI"))()
-    end
-})
-InfiniteYieldTab:AddButton({
-    Name = "HAKAI ESP",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/hakai0fc/ESP/refs/heads/main/HAKAI"))()
-    end
-})
-InfiniteYieldTab:AddButton({
-    Name = "InfiniteYield",
-    Callback = function()
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
-    end
-})
+
 local FuncoesEspeciaisTab = Window:MakeTab({
     Name = "FUNÇÕES OP",
     Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 FuncoesEspeciaisTab:AddSection({ Name = "PODERES" })
+
+local flyAtivo = false
+local flySpeed = 50
+local noclipAtivo = false
+local antiVoidAtivo = false
+local flyWasActiveBeforeDeath = false
+local noclipWasActiveBeforeDeath = false
+
+local flyConnection, noclipConnection, antiVoidConnection
+local BG, BV
+local originalCanCollide = {}
+
 local function safeRestoreHumanoid(humanoid)
     if humanoid and humanoid.Parent then
         pcall(function()
@@ -170,6 +98,7 @@ local function safeRestoreHumanoid(humanoid)
         end)
     end
 end
+
 local function safeStopFly()
     if flyConnection then flyConnection:Disconnect() flyConnection=nil end
     if BG then BG:Destroy() BG=nil end
@@ -179,22 +108,27 @@ local function safeStopFly()
         safeRestoreHumanoid(char:FindFirstChildOfClass("Humanoid"))
     end
 end
+
 local function startFly(char)
     safeStopFly()
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     local root = char:FindFirstChild("HumanoidRootPart")
     if not humanoid or not root then return end
-    BG = Instance.new("BodyGyro")
-    BV = Instance.new("BodyVelocity")
+
+    BG = Instance.new("BodyGyro")  
+    BV = Instance.new("BodyVelocity")  
     BG.MaxTorque = Vector3.new(9e9,9e9,9e9)
     BG.P = 9e4
     BG.CFrame = root.CFrame
     BG.Parent = root
+
     BV.MaxForce = Vector3.new(9e9,9e9,9e9)
     BV.Velocity = Vector3.zero
     BV.Parent = root
+
     humanoid.PlatformStand = true
     humanoid.AutoRotate = false
+
     flyConnection = RunService.RenderStepped:Connect(function()
         if not flyAtivo or not root.Parent then return end
         local cam = workspace.CurrentCamera
@@ -209,132 +143,106 @@ local function startFly(char)
         BG.CFrame = CFrame.new(root.Position, root.Position + cam.CFrame.LookVector)
     end)
 end
-local function setNoclip(state)
-    noclipAtivo = state
-    if noclipConnection then
-        noclipConnection:Disconnect()
-        noclipConnection = nil
-    end
-    if state then
-        noclipConnection = RunService.Stepped:Connect(function()
-            if LP.Character then
-                for _, part in pairs(LP.Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
-                    end
-                end
-            end
-        end)
-    else
-        if LP.Character then
-            for _, part in pairs(LP.Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = true
-                end
-            end
+
+local function startNoclip(char)
+    if noclipConnection then noclipConnection:Disconnect() end
+    originalCanCollide = {}
+    for _, part in ipairs(char:GetDescendants()) do
+        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+            originalCanCollide[part] = part.CanCollide
+            part.CanCollide = false
         end
     end
-end
-local function startAntiVoid(char)
-    if antiVoidConnection then antiVoidConnection:Disconnect() end
-    antiVoidConnection = RunService.Heartbeat:Connect(function()
-        if not antiVoidAtivo or not char then return end
-        local root = char:FindFirstChild("HumanoidRootPart")
-        if root and root.Position.Y < 435 then
-            root.CFrame = CFrame.new(root.Position.X, math.max(root.Position.Y, 435), root.Position.Z)
+    noclipConnection = RunService.Heartbeat:Connect(function()
+        if not noclipAtivo or not char or not char.Parent then return end
+        for part, _ in pairs(originalCanCollide) do
+            if part and part.Parent then
+                part.CanCollide = false
+            end
         end
     end)
 end
+
+local function stopNoclip()
+    noclipAtivo = false
+    if noclipConnection then noclipConnection:Disconnect() noclipConnection = nil end
+    for part, originalValue in pairs(originalCanCollide) do
+        if part and part.Parent then
+            part.CanCollide = originalValue
+        end
+    end
+    originalCanCollide = {}
+end
+
+local function startAntiVoid(char)
+    if antiVoidConnection then antiVoidConnection:Disconnect() end
+    antiVoidConnection = RunService.Heartbeat:Connect(function()
+        if not antiVoidAtivo or not char or not char:FindFirstChild("HumanoidRootPart") then return end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if root.Position.Y < 435 then
+            root.Velocity = Vector3.zero
+            root.CFrame = CFrame.new(root.Position.X, 440, root.Position.Z)
+        end
+    end)
+end
+
 local function stopAntiVoid()
-    antiVoidAtivo = false
     if antiVoidConnection then
         antiVoidConnection:Disconnect()
         antiVoidConnection = nil
     end
 end
+
 local function onCharacter(char)
     char:WaitForChild("HumanoidRootPart")
     local humanoid = char:WaitForChild("Humanoid")
+
     humanoid.Died:Connect(function()
         if flyAtivo then
-            flyWasActiveBeforeDeath = true
             flyAtivo = false
             safeStopFly()
-            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly Desativado (Você Morreu)",Image="rbxassetid://4483345998",Time=2})
         end
         if noclipAtivo then
-            noclipWasActiveBeforeDeath = true
-            setNoclip(false)
-            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
-        end
-        if antiVoidAtivo then
-            antiVoidWasActiveBeforeDeath = true
-            stopAntiVoid()
-            OrionLib:MakeNotification({Name="Anti Void",Content="❌ Anti Void desativado! (você morreu!)",Image="rbxassetid://4483345998",Time=2})
+            stopNoclip()
+            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip Desativado (Você Morreu)",Image="rbxassetid://4483345998",Time=2})
         end
     end)
-    task.wait(0.1)
-    if flyWasActiveBeforeDeath then
-        flyAtivo = true
-        startFly(char)
-        OrionLib:MakeNotification({Name="Fly",Content="✅ Fly reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
-        flyWasActiveBeforeDeath = false
-    end
-    if noclipWasActiveBeforeDeath then
-        noclipAtivo = true
-        setNoclip(true)
-        OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
-        noclipWasActiveBeforeDeath = false
-    end
-    if antiVoidWasActiveBeforeDeath then
-        antiVoidAtivo = true
-        startAntiVoid(char)
-        OrionLib:MakeNotification({Name="Anti Void",Content="✅ Anti Void reativado! (Você Reespawnou!)",Image="rbxassetid://4483345998",Time=2})
-        antiVoidWasActiveBeforeDeath = false
-    end
+
+    if antiVoidAtivo then startAntiVoid(char) end
 end
+
 LP.CharacterAdded:Connect(onCharacter)
 if LP.Character then onCharacter(LP.Character) end
+
+-- ========== TOGGLES ==========
 FuncoesEspeciaisTab:AddToggle({
     Name = "Noclip",
     Default = false,
-    Save = false,
-    Flag = "noclip",
     Callback = function(state)
-        setNoclip(state)
+        noclipAtivo = state
         if state then
-            OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip ativado!",Image="rbxassetid://4483345998",Time=2})
+            if LP.Character then startNoclip(LP.Character) end
+            OrionLib:MakeNotification({Name="Noclip",Content="✅ Noclip Ativado!",Image="rbxassetid://4483345998",Time=2})
         else
-            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip desativado!",Image="rbxassetid://4483345998",Time=2})
+            stopNoclip()
+            OrionLib:MakeNotification({Name="Noclip",Content="❌ Noclip Desativado!",Image="rbxassetid://4483345998",Time=2})
         end
     end
 })
+
 FuncoesEspeciaisTab:AddToggle({
     Name = "Fly",
     Default = false,
-    Save = false,
-    Flag = "fly",
     Callback = function(state)
         flyAtivo = state
         if state then
             if LP.Character then startFly(LP.Character) end
-            OrionLib:MakeNotification({Name="Fly",Content="✅ Fly ativado!",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({Name="Fly",Content="✅ Fly Ativado!",Image="rbxassetid://4483345998",Time=2})
         else
             safeStopFly()
-            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly desativado!",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({Name="Fly",Content="❌ Fly Desativado!",Image="rbxassetid://4483345998",Time=2})
         end
-    end
-})
-FuncoesEspeciaisTab:AddSlider({
-    Name = "Fly Speed",
-    Min = 0,
-    Max = 2500,
-    Default = 50,
-    Color = Color3.fromRGB(255, 255, 255),
-    Increment = 1,
-    ValueName = "Fly Speed",
-    Callback = function(Value)
-        flySpeed = Value
     end
 })
 FuncoesEspeciaisTab:AddToggle({
@@ -346,13 +254,37 @@ FuncoesEspeciaisTab:AddToggle({
         antiVoidAtivo = state
         if state then
             if LP.Character then startAntiVoid(LP.Character) end
-            OrionLib:MakeNotification({Name="Anti Void",Content="✅ Anti Void ativado! (Impede cair abaixo de Y=435)",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({
+                Name="Anti Void",
+                Content="✅ Anti Void ativado! (Impede cair abaixo de Y=435)",
+                Image="rbxassetid://4483345998",
+                Time=2
+            })
         else
             stopAntiVoid()
-            OrionLib:MakeNotification({Name="Anti Void",Content="❌ Anti Void desativado!",Image="rbxassetid://4483345998",Time=2})
+            OrionLib:MakeNotification({
+                Name="Anti Void",
+                Content="❌ Anti Void desativado!",
+                Image="rbxassetid://4483345998",
+                Time=2
+            })
         end
     end
 })
-pcall(function() 
-OrionLib:Init() 
+
+FuncoesEspeciaisTab:AddSlider({
+    Name = "Fly Speed",
+    Min = 0,
+    Max = 2500,
+    Default = 50,
+    Color = Color3.fromRGB(255, 255, 255),
+    Increment = 1,
+    ValueName = "Speed",
+    Callback = function(Value)
+        flySpeed = Value
+    end
+})
+
+pcall(function()
+    OrionLib:Init()
 end)
